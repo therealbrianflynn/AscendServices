@@ -6,6 +6,7 @@ import { requireRoleForPage } from "@/lib/auth/page-guard";
 import { ADMIN_ROLE } from "@/lib/auth/roles";
 import { readSlaSettings } from "@/lib/settings/sla-settings";
 
+import { PageIntro } from "../page-intro";
 import { RequestsGrid } from "./requests-grid";
 import { SlaSettingsForm } from "./sla-settings-form";
 import { UsersGrid } from "./users-grid";
@@ -38,17 +39,18 @@ export default async function AdminConsolePage() {
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-12">
-      <p className="text-sm font-medium uppercase tracking-wide text-ascend-taupe">
-        Admin
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ascend-navy">
-        Admin console
-      </h1>
-      <p className="mt-3 max-w-2xl text-ascend-ink">
+      <PageIntro
+        eyebrow="Ministry team"
+        title="Admin console"
+        image={{
+          src: "/ministry/garden.jpg",
+          alt: "Neighbors working together in a garden",
+        }}
+      >
         Every request and every member, plus the thresholds that decide when a
         request is overdue. Requester addresses are shown here so you can
         coordinate — please treat them as private.
-      </p>
+      </PageIntro>
 
       <section className="mt-10" aria-labelledby="admin-sla-heading">
         <h2 id="admin-sla-heading" className="text-xl font-semibold text-ascend-navy">

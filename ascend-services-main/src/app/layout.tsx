@@ -1,21 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Source_Sans_3 } from "next/font/google";
 import "./globals.css";
+import { SiteFooter } from "./site-footer";
 import { SiteHeader } from "./site-header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sourceSans = Source_Sans_3({
+  variable: "--font-source-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
   title: "Ascend Services",
-  description: "Ministry volunteer ↔ help-request platform",
+  description:
+    "A ministry of practical care. Request help from a neighbor, or offer your hands to serve.",
 };
 
 export default function RootLayout({
@@ -26,10 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-ascend-bg text-ascend-ink antialiased`}
+        className={`${sourceSans.variable} ${fraunces.variable} flex min-h-screen flex-col bg-ascend-bg text-ascend-ink antialiased`}
       >
         <SiteHeader />
-        {children}
+        <div className="flex-1">{children}</div>
+        <SiteFooter />
       </body>
     </html>
   );

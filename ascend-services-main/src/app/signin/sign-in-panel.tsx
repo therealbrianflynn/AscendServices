@@ -8,11 +8,11 @@ import { describeApiError, describeBrowserError } from "./passkey-feedback";
 import { usePasskeySupport } from "./use-passkey-support";
 
 const primaryButtonClass =
-  "w-full rounded-lg bg-stone-900 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60";
+  "ascend-gradient w-full rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60";
 const secondaryButtonClass =
-  "w-full rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm font-medium text-stone-900 disabled:opacity-60";
+  "w-full rounded-full border border-ascend-navy/15 bg-white px-4 py-2.5 text-sm font-semibold text-ascend-navy disabled:opacity-60";
 const fieldClass =
-  "mt-1 w-full rounded-lg border border-stone-300 bg-white px-3 py-2 text-stone-900 shadow-sm outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-200";
+  "mt-1 w-full rounded-xl border border-ascend-taupe/50 bg-white px-3 py-2 text-ascend-ink shadow-sm outline-none focus:border-ascend-sky-deep focus:ring-2 focus:ring-ascend-sky/50";
 
 type Busy = "passkey" | "magic-link" | null;
 
@@ -105,7 +105,7 @@ export function SignInPanel() {
   return (
     <form onSubmit={sendMagicLink} noValidate className="mt-8 flex flex-col gap-5">
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-stone-800">
+        <label htmlFor="email" className="block text-sm font-medium text-ascend-navy">
           Email
         </label>
         <input
@@ -117,7 +117,7 @@ export function SignInPanel() {
           onChange={(event) => setEmail(event.target.value)}
           className={fieldClass}
         />
-        <p className="mt-1 text-xs text-stone-500">
+        <p className="mt-1 text-xs text-ascend-taupe">
           Optional for passkeys — required for an emailed link.
         </p>
       </div>
@@ -132,7 +132,7 @@ export function SignInPanel() {
           {busy === "passkey" ? "Waiting for your passkey…" : "Sign in with a passkey"}
         </button>
       ) : (
-        <p className="rounded-lg bg-stone-100 px-3 py-2 text-sm text-stone-600">
+        <p className="rounded-xl bg-ascend-bg px-3 py-2 text-sm text-ascend-navy/80">
           This browser does not support passkeys. Use the emailed link below.
         </p>
       )}
@@ -150,7 +150,7 @@ export function SignInPanel() {
           {error}
         </p>
       ) : null}
-      {notice ? <p className="text-sm text-stone-700">{notice}</p> : null}
+      {notice ? <p className="text-sm text-ascend-navy">{notice}</p> : null}
     </form>
   );
 }

@@ -7,6 +7,7 @@ import { REQUEST_STATUS_LABELS } from "@/lib/requests/status";
 import type { AssignmentRequestView } from "@/lib/requests/views";
 import { findVolunteerProfile } from "@/lib/volunteers/profile";
 
+import { PageIntro } from "../page-intro";
 import { AssignButton } from "./assign-button";
 import { BOARD_SKILL_PARAM, readSkillParam } from "./board-params";
 import { SkillFilter } from "./skill-filter";
@@ -45,17 +46,18 @@ export default async function HelpWantedBoardPage({
   ]);
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
-      <p className="text-sm font-medium uppercase tracking-wide text-ascend-taupe">
-        Volunteer hub
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ascend-navy">
-        Help Wanted board
-      </h1>
-      <p className="mt-3 text-ascend-ink">
-        Open requests waiting for a volunteer. Take one and we will introduce you
-        to the person who asked.
-      </p>
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <PageIntro
+        eyebrow="Volunteer hub"
+        title="Help Wanted board"
+        image={{
+          src: "/ministry/hands.jpg",
+          alt: "Hands repairing a lamp beside a cup of tea",
+        }}
+      >
+        Open requests waiting for a volunteer. Take one, and we will introduce
+        you to the person who asked.
+      </PageIntro>
 
       <SkillFilter available={board.filter.available} selected={board.filter.requested} />
 

@@ -11,20 +11,21 @@ Source logo: `public/brand/ascend-services-logo.jpg` (official wordmark + arrow)
 | `--ascend-taupe` | `#A89F91` | Secondary label (“SERVICES”), muted borders |
 | `--ascend-sun` | `#F7E3A1` | Warm sun yellow — sticky-note card fill on the Help Wanted board |
 | `--ascend-sun-deep` | `#E2BE63` | Sticky-note edge / hover accent |
-| `--ascend-bg` | `#FFFFFF` | Page background |
-| `--ascend-surface` | `#F7F9FC` | Cards / subtle panels |
+| `--ascend-bg` | `#F6F1E8` | Warm cream page background |
+| `--ascend-surface` | `#FFFFFF` | Cards / forms, and the field behind the logo |
 | `--ascend-ink` | `#163057` | Body text |
 
 ## Gradient
 Primary actions / hero accent: linear-gradient(90deg, `#163057` 0%, `#7ABCE8` 100%) — mirrors logo arrow.
 
 ## Type
-- Headings: bold geometric sans (Inter / system-ui), tracking tight, uppercase optional for wordmark only
-- Body: same family, regular weight; secondary copy in taupe
+- Headings: Fraunces (soft serif), tracking tight
+- Body: Source Sans 3; secondary copy in taupe
 
 ## Logo usage
-- Header: logo height ~40–48px, left-aligned; do not recolor
-- Prefer full wordmark on white; do not put on busy photos
+- The official file has wide white margins. Display crops to the arrow and wordmark; do not recolor or redraw it
+- Header: cropped mark about 64px tall, left-aligned, on white
+- Home page: the same mark about 176px tall, on a white panel, never over a photograph
 - Favicon: crop arrow mark only if needed (optional follow-up)
 
 ## Out of scope for this pass

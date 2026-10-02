@@ -10,6 +10,8 @@ import {
 } from "@/lib/requests/status";
 import { buildTrackingUrl, isWellFormedTrackingToken } from "@/lib/requests/tracking-token";
 
+import { PageIntro } from "../../page-intro";
+
 /** Bearer-token URL: keep it out of search indexes. */
 export const metadata: Metadata = {
   title: "Your request · Ascend Services",
@@ -37,20 +39,22 @@ export default async function TrackRequestPage({
   const currentStep = REQUEST_STATUSES.indexOf(request.status);
 
   return (
-    <main className="mx-auto max-w-2xl px-6 py-14">
-      <p className="text-sm font-medium uppercase tracking-wide text-ascend-taupe">
-        Ascend Services
-      </p>
-      <h1 className="mt-2 text-3xl font-semibold tracking-tight text-ascend-navy">
-        Your request
-      </h1>
-      <p className="mt-3 text-ascend-ink">
+    <main className="mx-auto max-w-6xl px-6 py-12">
+      <PageIntro
+        eyebrow="You are not forgotten"
+        title="Your request"
+        image={{
+          src: "/ministry/hero.jpg",
+          alt: "Neighbors bringing help to a front porch",
+        }}
+      >
         Submitted{" "}
         {new Date(request.createdAt).toLocaleDateString("en-US", {
           dateStyle: "long",
         })}
         . Bookmark this page — the link is your private way back in.
-      </p>
+      </PageIntro>
+      <div className="max-w-2xl">
 
       <section className="mt-8 rounded-xl border border-ascend-taupe/30 bg-ascend-surface p-5">
         <p className="text-sm font-medium uppercase tracking-wide text-ascend-taupe">
@@ -108,6 +112,7 @@ export default async function TrackRequestPage({
       <p className="mt-6 break-all text-xs text-ascend-taupe">
         Your private link: {buildTrackingUrl(token, getAppBaseUrl())}
       </p>
+      </div>
     </main>
   );
 }

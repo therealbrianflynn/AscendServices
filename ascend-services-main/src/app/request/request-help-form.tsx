@@ -203,7 +203,7 @@ export function RequestHelpForm({ serviceTypes }: RequestHelpFormProps) {
       <button
         type="submit"
         disabled={submitting}
-        className="ascend-gradient rounded-lg px-4 py-2.5 text-sm font-medium text-white shadow-sm disabled:opacity-60"
+        className="ascend-gradient w-fit rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-sm disabled:opacity-60"
       >
         {submitting ? "Sending…" : "Send my request"}
       </button>

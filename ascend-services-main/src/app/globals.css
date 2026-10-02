@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
-/* Brand tokens — single source of truth for palette + gradient. See docs/BRAND.md. */
+/* Brand tokens — palette + gradient. See docs/BRAND.md. */
 :root {
   --ascend-navy: #163057;
   --ascend-sky: #7abce8;
   --ascend-sky-deep: #4a9fd4;
-  --ascend-taupe: #a89f91;
+  --ascend-taupe: #8c8274;
   --ascend-sun: #f7e3a1;
   --ascend-sun-deep: #e2be63;
-  --ascend-bg: #ffffff;
-  --ascend-surface: #f7f9fc;
+  --ascend-bg: #f6f1e8;
+  --ascend-surface: #ffffff;
   --ascend-ink: #163057;
-  --ascend-gradient: linear-gradient(90deg, #163057 0%, #7abce8 100%);
+  --ascend-gradient: linear-gradient(105deg, #163057 0%, #3d7eb8 48%, #7abce8 100%);
 
   --background: var(--ascend-bg);
   --foreground: var(--ascend-ink);
@@ -29,8 +29,9 @@
   --color-ascend-bg: var(--ascend-bg);
   --color-ascend-surface: var(--ascend-surface);
   --color-ascend-ink: var(--ascend-ink);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-source-sans), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-mono: ui-monospace, monospace;
 }
 
 /* Primary CTA / hero accent fill — mirrors the logo arrow. */
@@ -39,7 +40,10 @@
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(900px 420px at 0% -10%, rgba(122, 188, 232, 0.28), transparent 60%),
+    radial-gradient(720px 380px at 100% 0%, rgba(226, 190, 99, 0.32), transparent 55%),
+    var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-sans);
 }
