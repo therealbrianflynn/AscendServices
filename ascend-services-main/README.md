@@ -50,9 +50,9 @@ secure) or HTTPS; a plain-HTTP LAN address will not work.
 
 ## Passwordless sign-in (magic link — fallback)
 
-Email is a stub in the seed MVP: `EMAIL_TRANSPORT=log` writes each outbound
-message to the structured JSON log instead of sending it, so copy the link out of
-the app logs.
+Locally, `EMAIL_TRANSPORT=log` writes each outbound message to the structured
+JSON log instead of sending it, so copy the link out of the app logs. Production
+uses `EMAIL_TRANSPORT=ses` to deliver the same messages through Amazon SES.
 
 ```bash
 # 1. request a link (202 for known and new addresses alike)

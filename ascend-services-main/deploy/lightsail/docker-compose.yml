@@ -29,10 +29,11 @@ services:
       WEBAUTHN_RP_ID: ascendservicesministry.org
       WEBAUTHN_ORIGINS: https://ascendservicesministry.org
       WEBAUTHN_RP_NAME: Ascend Services
-      EMAIL_TRANSPORT: log
+      EMAIL_TRANSPORT: ses
       EMAIL_FROM: no-reply@ascendservicesministry.org
-      # Temporary: production otherwise omits the magic-link body from the log.
-      EMAIL_LOG_INCLUDE_BODY: "true"
+      AWS_REGION: us-east-1
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?set AWS_ACCESS_KEY_ID in .env}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?set AWS_SECRET_ACCESS_KEY in .env}
     depends_on:
       db:
         condition: service_healthy
