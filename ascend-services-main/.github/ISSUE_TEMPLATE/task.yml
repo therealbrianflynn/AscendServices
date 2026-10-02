@@ -1,0 +1,68 @@
+name: Task
+description: A leaf work item. Must declare Blocked by and DoR fields. PR targets story/* or feature/* — never main.
+title: "Task: "
+labels: [task]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent
+      description: Story issue, e.g. #4
+      placeholder: "#4"
+    validations:
+      required: true
+  - type: input
+    id: blocked_by
+    attributes:
+      label: Blocked by
+      description: Required. Use #N or none. The dispatcher skips if listed issues are still OPEN.
+      placeholder: none
+    validations:
+      required: true
+  - type: input
+    id: branch_hint
+    attributes:
+      label: Branch hint
+      description: Task PR head, e.g. task/42-login-guard. Base must be story/* or feature/* — never main.
+      placeholder: task/<n>-<slug>
+    validations:
+      required: false
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: Optional leftover. Ignored when an Epic is found on the Parent chain; concurrency Size lives on the Epic.
+      options: [S, M, L]
+      default: 0
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What must be true for this task to be done (DoR).
+      placeholder: |
+        - [ ] Behavior X verified
+        - [ ] Tests cover the change
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence of done
+      description: Test command and/or artifact that proves done (fresh evidence required).
+      placeholder: node --test test/*.test.js
+    validations:
+      required: true
+  - type: textarea
+    id: blast_radius
+    attributes:
+      label: Blast radius
+      description: Scope note for the change. Default unless tightened.
+      value: "≤30 files, no deletions, no secrets/PHI paths"
+    validations:
+      required: true

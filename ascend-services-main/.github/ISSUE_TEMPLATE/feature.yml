@@ -1,0 +1,41 @@
+name: Feature
+description: A shippable capability under an Epic. Default Accept unit into main.
+title: "Feature: "
+labels: [feature]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Concurrency **Size** lives on the parent **Epic** (S/M/L). Do not copy Size onto Features; the dispatcher inherits it via the Parent chain.
+        Default **Ship unit** is Feature → main (Marcus Accept). Use Epic ship unit only when Features must land atomically.
+  - type: input
+    id: parent
+    attributes:
+      label: Parent
+      description: Epic issue, e.g. #2
+      placeholder: "#2"
+    validations:
+      required: true
+  - type: dropdown
+    id: ship_unit
+    attributes:
+      label: Ship unit
+      description: Echo of Epic ship unit. Feature = Accept Feature→main; Epic = roll into epic/* first.
+      options: [Feature, Epic]
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: branch_hint
+    attributes:
+      label: Branch hint
+      description: Ephemeral feature branch, e.g. feature/35-response-catalog (from main or epic/*)
+      placeholder: feature/<n>-<slug>
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+    validations:
+      required: true

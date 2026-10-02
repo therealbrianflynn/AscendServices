@@ -1,0 +1,45 @@
+name: Epic
+description: Large slice under a Brief. Set Size for concurrency cap and Ship unit.
+title: "Epic: "
+labels: [epic]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent
+      description: Brief issue, e.g. #1
+      placeholder: "#1"
+    validations:
+      required: true
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: Concurrency cap. S=1, M=2, L=3, default S. Never unbounded.
+      options: [S, M, L]
+      default: 0
+    validations:
+      required: true
+  - type: dropdown
+    id: ship_unit
+    attributes:
+      label: Ship unit
+      description: What may open an Accept PR to main. Feature is default; Epic when the Feature set is one atomic ship.
+      options: [Feature, Epic]
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: branch_hint
+    attributes:
+      label: Branch hint
+      description: Ephemeral integration branch cut from main, e.g. epic/30-referral-seed
+      placeholder: epic/<n>-<slug>
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+    validations:
+      required: true

@@ -1,0 +1,62 @@
+name: Brief
+description: Top-level outcome for an SDLC pass (aligns with eng-intake).
+title: "Brief: "
+labels: [brief]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: What done looks like.
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      options: [Low, Medium, High]
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+      description: Explicitly out of scope for this Brief (eng-intake alignment).
+      placeholder: |
+        - No silent merge to main
+        - No live provider HTTP client
+    validations:
+      required: true
+  - type: textarea
+    id: success_criteria
+    attributes:
+      label: Success criteria
+      description: Measurable done bar plus how evidence will be captured.
+      placeholder: |
+        - Tests pass (paste summary counts)
+        - Feature or Epic Accept PR into main (Marcus merges)
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Commands, CI URLs, or artifacts that will prove success criteria.
+      placeholder: node --test test/*.test.js ; gh pr checks <n>
+    validations:
+      required: true
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open questions
+      description: Unknowns that block or shape the plan (eng-intake alignment).
+      placeholder: |
+        - Ship unit Feature (default) or Epic (atomic)?
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        Always private. Post-MVP Epics/Features cut from current `main`.
+        Task PRs target `story/*` or `feature/*` — never `main`.
+        Marcus Accept only for Feature/Epic → `main`. Forever `mvp` is retired for new intake.

@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ascend
+      POSTGRES_PASSWORD: ascend
+      POSTGRES_DB: ascend_services
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ascend -d ascend_services"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://ascend:ascend@db:5432/ascend_services?schema=public
+      NODE_ENV: production
+      PORT: "3000"
+      # Supplied from .env (copy .env.example first); the app refuses to start
+      # without a session secret rather than falling back to a weak default.
+      AUTH_SESSION_SECRET: ${AUTH_SESSION_SECRET:?set AUTH_SESSION_SECRET in .env}
+      AUTH_SESSION_TTL_HOURS: ${AUTH_SESSION_TTL_HOURS:-24}
+      MAGIC_LINK_TTL_MINUTES: ${MAGIC_LINK_TTL_MINUTES:-15}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      # Passkeys: empty means "derive from APP_BASE_URL", which is what local
+      # development wants. Set both once the app answers on a real domain.
+      WEBAUTHN_RP_ID: ${WEBAUTHN_RP_ID:-}
+      WEBAUTHN_ORIGINS: ${WEBAUTHN_ORIGINS:-}
+      WEBAUTHN_RP_NAME: ${WEBAUTHN_RP_NAME:-Ascend Services}
+      WEBAUTHN_CHALLENGE_TTL_MINUTES: ${WEBAUTHN_CHALLENGE_TTL_MINUTES:-5}
+      EMAIL_TRANSPORT: ${EMAIL_TRANSPORT:-log}
+      EMAIL_FROM: ${EMAIL_FROM:-no-reply@ascend.local}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.env
+.env*.local
+coverage
+*.md
+!AI-PROJECT.md
+docs
+.github/ISSUE_TEMPLATE
+infra
+cdk.out
+src/__tests__
+src/__fixtures__

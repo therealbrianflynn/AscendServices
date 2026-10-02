@@ -1,0 +1,34 @@
+name: Story
+description: A user-facing slice under a Feature.
+title: "Story: "
+labels: [story]
+body:
+  - type: input
+    id: parent
+    attributes:
+      label: Parent
+      description: Feature issue, e.g. #3
+      placeholder: "#3"
+    validations:
+      required: true
+  - type: input
+    id: branch_hint
+    attributes:
+      label: Branch hint
+      description: Optional story working branch under the Feature, e.g. story/40-response-form
+      placeholder: story/<n>-<slug>
+    validations:
+      required: false
+  - type: dropdown
+    id: size
+    attributes:
+      label: Size
+      description: Optional leftover. Ignored when an Epic is found on the Parent chain.
+      options: [S, M, L]
+      default: 0
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+    validations:
+      required: true

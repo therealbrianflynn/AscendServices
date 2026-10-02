@@ -1,0 +1,189 @@
+// Ascend Services — Prisma schema (Spec v6)
+// SLA threshold units: hours / days (see SystemSettings)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SERVER
+  ADMIN
+}
+
+enum RequestStatus {
+  NEW
+  ASSIGNED
+  CONTACT_MADE
+  IN_PROGRESS
+  COMPLETE
+}
+
+/// Which WebAuthn ceremony a stored challenge belongs to. A challenge minted for
+/// enrolment must never be redeemable as a sign-in assertion, or vice versa.
+enum WebAuthnCeremony {
+  REGISTRATION
+  AUTHENTICATION
+}
+
+model User {
+  id                 String   @id @default(uuid())
+  name               String
+  email              String   @unique
+  role               Role     @default(SERVER)
+  services_provided  String[] @default([])
+  /// Short self-introduction shown to a requester in the connection email
+  /// (Spec v6 §4) and captured during first-time onboarding (Spec v6 §5).
+  bio                String?
+  onboarding_token   String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  auditLogsAsActor   AuditLog[] @relation("AuditActor")
+  assignedRequests   Request[] @relation("RequestAssignee")
+  magicLinkTokens    MagicLinkToken[]
+  passkeyCredentials PasskeyCredential[]
+  webAuthnChallenges WebAuthnChallenge[]
+}
+
+/// Single-use, short-lived passwordless sign-in token.
+/// Only the SHA-256 hash of the token is persisted; the raw value exists solely
+/// inside the emailed magic link.
+model MagicLinkToken {
+  id         String    @id @default(uuid())
+  token_hash String    @unique
+  userId     String
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+/// A passkey (WebAuthn credential) enrolled by a SERVER or ADMIN.
+/// Nothing here is a secret: `public_key` is the credential's *public* half and
+/// the attestation statement is verified then discarded, never persisted.
+model PasskeyCredential {
+  id            String    @id @default(uuid())
+  /// Base64URL credential id minted by the authenticator. Globally unique so a
+  /// credential can be resolved before its owner is known (discoverable logins).
+  credential_id String    @unique
+  userId        String
+  public_key    Bytes
+  /// Authenticator signature counter. A value that fails to advance is the
+  /// documented signal of a cloned authenticator, so it is persisted per use.
+  counter       Int       @default(0)
+  transports    String[]  @default([])
+  /// `singleDevice` | `multiDevice` as reported at enrolment.
+  device_type   String
+  backed_up     Boolean   @default(false)
+  /// User-supplied label so a member can tell their devices apart.
+  label         String?
+  lastUsedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// Server-side, single-use WebAuthn challenge. The browser only ever holds the
+/// row id (in a short-lived httpOnly cookie), so a challenge cannot be replayed
+/// from a captured response alone.
+model WebAuthnChallenge {
+  id         String           @id @default(uuid())
+  ceremony   WebAuthnCeremony
+  challenge  String
+  /// Set when the ceremony is bound to a known member: enrolment always, and
+  /// sign-in whenever the member identified themselves up front.
+  userId     String?
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime         @default(now())
+
+  user       User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Request {
+  id              String        @id @default(uuid())
+  requester_name  String
+  /// Optional: the public form works without it. Spec v6 §4 mails the
+  /// requester when a volunteer is assigned, which is only possible when the
+  /// requester left an address; the connection email is skipped otherwise.
+  requester_email String?
+  service_type    String
+  neighborhood    String
+  /// Private (Spec v6 §3): visible only to the tracking-token holder and, once
+  /// assigned, the matched volunteer. Never returned on public listings.
+  street_address  String
+  /// Optional prayer request captured by the public form (Spec v6 §5).
+  prayer_request  String?
+  /// Privacy toggle for `prayer_request`. Private by default: a requester must
+  /// opt in before the text may be shared beyond admins.
+  prayer_private  Boolean       @default(true)
+  status          RequestStatus @default(NEW)
+  /// Volunteer who claimed the request from the Help Wanted board. Set with the
+  /// NEW -> ASSIGNED transition; `SetNull` keeps the request (and its history)
+  /// alive if the volunteer's account is ever removed.
+  assignedToId    String?
+  /// When the request was claimed — the clock the stalled-contact SLA runs on.
+  assignedAt      DateTime?
+  /// Unguessable bearer credential for the unauthenticated self-service portal.
+  /// Generated by the application (see `src/lib/requests/tracking-token.ts`);
+  /// the uuid default only exists as a database-level backstop. Never logged.
+  tracking_token  String        @unique @default(uuid())
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  assignedTo      User?         @relation("RequestAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  auditLogs       AuditLog[]
+
+  @@index([status])
+  @@index([assignedToId])
+}
+
+/// Append-only audit of actor actions and request state transitions.
+model AuditLog {
+  id            String   @id @default(uuid())
+  createdAt     DateTime @default(now())
+  actorId       String?
+  requestId     String?
+  /// e.g. REQUEST_STATUS_CHANGED, SLA_BREACH, USER_LOGIN
+  action        String
+  /// Previous status when a transition occurred (nullable for non-transition events)
+  fromStatus    String?
+  /// New status when a transition occurred
+  toStatus      String?
+  metadata      Json?
+
+  actor         User?    @relation("AuditActor", fields: [actorId], references: [id], onDelete: SetNull)
+  request       Request? @relation(fields: [requestId], references: [id], onDelete: SetNull)
+
+  @@index([requestId])
+  @@index([actorId])
+  @@index([createdAt])
+}
+
+/// Singleton-style settings row holding the Spec v6 SLA monitoring thresholds.
+model SystemSettings {
+  id                          String   @id @default("default")
+  /// Hours a NEW request may remain unassigned before an unassigned alert
+  unassigned_alert_hours      Int      @default(24)
+  /// Hours an ASSIGNED request may sit before reaching CONTACT_MADE
+  stalled_contact_alert_hours Int      @default(24)
+  /// Days a request may remain IN_PROGRESS before a stalled-progress alert
+  stalled_progress_days       Int      @default(3)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}

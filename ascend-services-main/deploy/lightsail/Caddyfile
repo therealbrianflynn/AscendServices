@@ -1,0 +1,11 @@
+http://54.164.118.142 {
+	reverse_proxy app:3000
+}
+
+www.ascendservicesministry.org {
+	redir https://ascendservicesministry.org{uri} permanent
+}
+
+ascendservicesministry.org {
+	reverse_proxy app:3000
+}
