@@ -45,7 +45,7 @@ export default async function TrackRequestPage({
         title="Your request"
         image={{
           src: "/ministry/hero.jpg",
-          alt: "Neighbors bringing help to a front porch",
+          alt: "Community members bringing help to a front porch",
         }}
       >
         Submitted{" "}
@@ -89,7 +89,7 @@ export default async function TrackRequestPage({
         <dl className="mt-3 grid gap-3 text-sm">
           <Detail label="Name" value={request.requester_name} />
           <Detail label="Help needed" value={request.service_type} />
-          <Detail label="Neighborhood" value={request.neighborhood} />
+          <Detail label="Community" value={request.neighborhood} />
           <Detail
             label="Street address"
             value={request.street_address}

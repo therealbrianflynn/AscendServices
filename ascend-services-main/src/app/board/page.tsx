@@ -66,7 +66,7 @@ export default async function HelpWantedBoardPage({
           Nothing open in{" "}
           {board.filter.applied.length > 0
             ? board.filter.applied.join(", ")
-            : "your area"}{" "}
+            : "your community"}{" "}
           right now. Thank you for checking in.
         </p>
       ) : (
@@ -116,7 +116,7 @@ function AssignmentCard({ assignment }: { assignment: AssignmentRequestView }) {
       </h3>
       <dl className="mt-3 grid gap-2 text-sm">
         <Detail label="Requester" value={assignment.requester_name} />
-        <Detail label="Neighborhood" value={assignment.neighborhood} />
+        <Detail label="Community" value={assignment.neighborhood} />
         <Detail label="Street address" value={assignment.street_address} />
         <Detail
           label="Email"

@@ -41,7 +41,7 @@ export default async function SignInPage() {
         title={session ? "Your sign-in methods" : "Come serve"}
         image={{
           src: "/ministry/garden.jpg",
-          alt: "Neighbors tending a garden together in warm morning light",
+          alt: "Community members tending a garden together in warm morning light",
         }}
       >
         {session

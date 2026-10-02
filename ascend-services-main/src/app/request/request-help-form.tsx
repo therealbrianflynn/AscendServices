@@ -133,8 +133,8 @@ export function RequestHelpForm({ serviceTypes }: RequestHelpFormProps) {
 
       <Field
         name="neighborhood"
-        label="Neighborhood"
-        hint="Shared with volunteers so nearby help can reach you."
+        label="Community"
+        hint="Name the part of the community where help is needed, so a nearby volunteer can reach you."
         error={fieldErrors.neighborhood}
       >
         <input

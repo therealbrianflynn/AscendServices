@@ -12,9 +12,9 @@ const ways = [
   },
   {
     title: "Work done side by side",
-    text: "Yards, gardens, and the ordinary jobs that are lighter when a neighbor picks up the other end.",
+    text: "Yards, gardens, and the ordinary jobs that are lighter when the community picks up the other end.",
     image: "/ministry/garden.jpg",
-    alt: "Neighbors planting and watering a backyard garden together",
+    alt: "Community members planting and watering a backyard garden together",
   },
   {
     title: "A steady pair of hands",
@@ -28,7 +28,7 @@ const steps = [
   {
     n: "01",
     title: "Tell us what you need",
-    text: "No account. Share the kind of help, your neighborhood, and a way to reach you.",
+    text: "No account. Share the kind of help, where you are in the community, and a way to reach you.",
   },
   {
     n: "02",
@@ -51,15 +51,15 @@ export default function Home() {
         </div>
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ascend-sky-deep">
-            A ministry of neighbors
+            A ministry for our community
           </p>
           <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.1] text-ascend-navy sm:text-5xl">
             Practical help, offered with care
           </h1>
           <p className="mt-4 max-w-xl text-lg leading-relaxed text-ascend-navy/80">
-            Ascend Services is where a need meets someone ready to serve. Ask
-            for a hand with the ordinary things of life, or offer your time.
-            Nobody has to carry it alone.
+            Ascend Services is where a need in the community meets someone ready
+            to serve. Ask for a hand with the ordinary things of life, or offer
+            your time. Nobody has to carry it alone.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
@@ -82,14 +82,14 @@ export default function Home() {
         <figure className="overflow-hidden rounded-[2rem] shadow-[0_28px_60px_-30px_rgba(22,48,87,0.6)] ring-1 ring-ascend-navy/10">
           <Image
             src="/ministry/hero.jpg"
-            alt="Neighbors on a front porch handing groceries to an older woman, while a child holds a potted plant"
+            alt="Community members on a front porch handing groceries to an older woman, while a child holds a potted plant"
             width={1600}
             height={900}
             priority
             className="h-72 w-full object-cover sm:h-[28rem]"
           />
           <figcaption className="bg-white px-6 py-4 text-sm text-ascend-navy/70">
-            Showing up is the ministry — a bag of groceries, a plant for the porch, a person at the door.
+            Showing up for the community — a bag of groceries, a plant for the porch, a person at the door.
           </figcaption>
         </figure>
       </section>
@@ -99,8 +99,8 @@ export default function Home() {
           Ways we serve
         </h2>
         <p className="mt-3 max-w-2xl text-lg text-ascend-navy/75">
-          Every request is a person. Every volunteer is a neighbor. This is the
-          care the ministry is built to give.
+          Every request is a person. Every volunteer is part of this community.
+          This is the care the ministry is built to give.
         </p>
         <ul className="mt-8 grid gap-6 md:grid-cols-3">
           {ways.map((way) => (

@@ -44,7 +44,7 @@ export default async function AdminConsolePage() {
         title="Admin console"
         image={{
           src: "/ministry/garden.jpg",
-          alt: "Neighbors working together in a garden",
+          alt: "Community members working together in a garden",
         }}
       >
         Every request and every member, plus the thresholds that decide when a

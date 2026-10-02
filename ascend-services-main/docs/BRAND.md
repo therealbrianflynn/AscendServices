@@ -24,7 +24,7 @@ Primary actions / hero accent: linear-gradient(90deg, `#163057` 0%, `#7ABCE8` 10
 
 ## Logo usage
 - The official file has wide white margins. Display crops to the arrow and wordmark; do not recolor or redraw it
-- Header: cropped mark about 64px tall, left-aligned, on white
+- Header: cropped mark about 48px tall, left-aligned, on the white navigation bar
 - Home page: the same mark about 176px tall, on a white panel, never over a photograph
 - Favicon: crop arrow mark only if needed (optional follow-up)
 

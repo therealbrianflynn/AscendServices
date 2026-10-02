@@ -7,7 +7,7 @@ export function SiteFooter() {
         <div>
           <p className="font-display text-xl text-ascend-navy">Ascend Services</p>
           <p className="mt-1 max-w-sm text-sm leading-relaxed text-ascend-navy/70">
-            A ministry of practical care. We show up for neighbors with meals,
+            A ministry of practical care. We show up for our community with meals,
             repairs, rides, and a willing pair of hands.
           </p>
         </div>

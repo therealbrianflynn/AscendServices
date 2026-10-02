@@ -17,7 +17,7 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   title: "Ascend Services",
   description:
-    "A ministry of practical care. Request help from a neighbor, or offer your hands to serve.",
+    "A ministry of practical care for our community. Request help, or offer your hands to serve.",
 };
 
 export default function RootLayout({

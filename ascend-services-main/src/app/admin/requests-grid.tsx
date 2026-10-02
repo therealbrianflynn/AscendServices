@@ -30,7 +30,7 @@ const columns = helper.columns([
     id: "requester_email",
     header: "Contact",
   }),
-  helper.accessor("neighborhood", { header: "Neighborhood" }),
+  helper.accessor("neighborhood", { header: "Community" }),
   helper.accessor("street_address", { header: "Street address" }),
   helper.accessor((request) => request.assignee?.name ?? UNASSIGNED, {
     id: "assignee",
