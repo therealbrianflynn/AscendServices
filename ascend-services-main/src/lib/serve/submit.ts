@@ -1,4 +1,3 @@
-import { requestMagicLink } from "@/lib/auth/magic-link";
 import { log } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 
@@ -11,33 +10,16 @@ export class ServeSignupError extends Error {
   }
 }
 
-export interface ServeSignupResult {
-  emailSent: boolean;
-}
-
 /**
- * Saves a serve application and tries to email a sign-in link.
- * A mail failure does not undo the profile: the background-check window
- * should still open.
+ * Saves how a signed-in member can serve. The account already exists, so this
+ * does not send a sign-in email.
  */
 export async function submitServeApplication(
-  input: ServeApplication,
-): Promise<ServeSignupResult> {
-  let emailSent = false;
-  try {
-    await requestMagicLink({ email: input.email, name: input.name });
-    emailSent = true;
-  } catch (err) {
-    log({
-      level: "error",
-      msg: "serve_signup_email_failed",
-      error: err instanceof Error ? err.message : "unknown",
-    });
-  }
-
+  input: ServeApplication & { userId: string },
+): Promise<void> {
   try {
     await prisma.user.update({
-      where: { email: input.email },
+      where: { id: input.userId },
       data: {
         name: input.name,
         services_provided: input.services,
@@ -52,6 +34,4 @@ export async function submitServeApplication(
     });
     throw new ServeSignupError("Could not save the serve application");
   }
-
-  return { emailSent };
 }

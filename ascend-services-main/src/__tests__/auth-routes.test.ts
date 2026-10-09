@@ -21,6 +21,7 @@ import {
   consumeMagicLink,
   requestMagicLink,
 } from "@/lib/auth/magic-link";
+import { AFTER_LOGIN_COOKIE } from "@/lib/auth/return-path";
 import { SESSION_COOKIE_NAME, signSession, verifySession } from "@/lib/auth/session";
 import { POST as postMagicLink } from "@/app/api/auth/magic-link/route";
 import { GET as getCallback } from "@/app/api/auth/callback/route";
@@ -103,6 +104,23 @@ describe("POST /api/auth/magic-link", () => {
     expect(res.headers.get("set-cookie")).toBeNull();
   });
 
+  it("remembers a same-site return path and ignores an off-site one", async () => {
+    vi.mocked(requestMagicLink).mockResolvedValue({
+      user: serverUser,
+      token: "raw-token",
+      expiresAt: new Date("2026-03-01T12:15:00.000Z"),
+      created: true,
+    });
+
+    const allowed = await postMagicLink(jsonRequest({ email: "ada@ascend.test", next: "/serve" }));
+    expect(allowed.headers.get("set-cookie")).toContain(`${AFTER_LOGIN_COOKIE}=%2Fserve`);
+
+    const rejected = await postMagicLink(
+      jsonRequest({ email: "ada@ascend.test", next: "https://evil.example" }),
+    );
+    expect(rejected.headers.get("set-cookie")).toBeNull();
+  });
+
   it("returns 400 for a malformed email", async () => {
     vi.mocked(requestMagicLink).mockRejectedValue(new InvalidEmailError("bad email"));
 
@@ -151,6 +169,19 @@ describe("GET /api/auth/callback", () => {
       email: serverUser.email,
       role: "SERVER",
     });
+  });
+
+  it("returns the member to the path they were trying to open", async () => {
+    vi.mocked(consumeMagicLink).mockResolvedValue({ ok: true, user: serverUser });
+
+    const res = await getCallback(
+      new Request("http://localhost:3000/api/auth/callback?token=raw-token", {
+        headers: { cookie: `${AFTER_LOGIN_COOKIE}=/serve` },
+      }),
+    );
+
+    expect(res.status).toBe(303);
+    expect(res.headers.get("location")).toBe("http://localhost:3000/serve");
   });
 
   it("rejects a reused token without setting a session", async () => {

@@ -19,7 +19,7 @@ const STORIES = [
     src: "/ministry/hands.jpg",
     alt: "Hands working together on a community project",
     title: "For people who want to serve",
-    body: "If you have time and a willingness to show up, we will match you with a need that fits. Serving here starts with a background check, then an open door onto the Help Wanted board.",
+        body: "If you have time and a willingness to show up, we will match you with a need that fits. Serving starts with a passkey so you are signed in, then a background check, then an open door onto the Help Wanted board.",
   },
   {
     src: "/ministry/garden.jpg",

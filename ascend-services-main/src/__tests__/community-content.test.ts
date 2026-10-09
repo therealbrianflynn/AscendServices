@@ -17,6 +17,17 @@ describe("parseServeApplication", () => {
     expect(parsed.value.services).toEqual(["Meals"]);
   });
 
+  it("uses the signed-in email instead of an address in the body", () => {
+    const parsed = parseServeApplication(
+      { name: "Ada", email: "someone-else@example.com", services: ["Meals"], bio: "" },
+      SERVICES,
+      "Ada@Example.com",
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.value.email).toBe("ada@example.com");
+  });
+
   it("rejects a missing name and an unknown service", () => {
     const parsed = parseServeApplication(
       { name: "  ", email: "ada@example.com", services: ["Flying"] },

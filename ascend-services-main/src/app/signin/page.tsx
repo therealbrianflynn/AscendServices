@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { canOpenHelpBoard } from "@/lib/auth/board-access";
 import { ADMIN_ROLE } from "@/lib/auth/roles";
+import { safeNextPath } from "@/lib/auth/return-path";
 import { readSession } from "@/lib/auth/guard";
 import { findVolunteerProfile } from "@/lib/volunteers/profile";
 import { prisma } from "@/lib/prisma";
@@ -22,9 +24,15 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function SignInPage() {
+export default async function SignInPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const nextPath = safeNextPath((await searchParams).next);
   const session = await readSession();
   const viewer = session ? await findVolunteerProfile(session.sub) : null;
+  if (viewer && nextPath) redirect(nextPath);
 
   const passkeys = viewer
     ? (
@@ -50,7 +58,9 @@ export default async function SignInPage() {
       >
         {signedIn
           ? `You are signed in as ${viewer.email}. Sign out when you want to come back with a passkey.`
-          : "Sign in with a passkey if you have one. If you are new, we will email a one-time link so you can finish setting up."}
+          : nextPath === "/serve"
+            ? "Sign in to offer your time. New members get an emailed link, then add a passkey before the serve form opens."
+            : "Sign in with a passkey if you have one. If you are new, we will email a one-time link so you can finish setting up."}
       </PageIntro>
       <div className="max-w-lg rounded-3xl bg-white p-6 shadow-md ring-1 ring-ascend-navy/5 sm:p-8">
         {signedIn ? (
@@ -61,7 +71,7 @@ export default async function SignInPage() {
             passkeys={passkeys}
           />
         ) : (
-          <SignInPanel />
+          <SignInPanel returnTo={nextPath ?? "/"} />
         )}
       </div>
     </main>

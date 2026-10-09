@@ -16,6 +16,7 @@ export type ServeFieldErrors = Partial<Record<ServeField, "required" | "invalid"
 export function parseServeApplication(
   source: unknown,
   allowedServices: readonly string[],
+  trustedEmail?: string,
 ): { ok: true; value: ServeApplication } | { ok: false; fields: ServeFieldErrors } {
   if (typeof source !== "object" || source === null) {
     return { ok: false, fields: { name: "required", email: "required", services: "required" } };
@@ -30,7 +31,7 @@ export function parseServeApplication(
 
   let email = "";
   try {
-    email = normalizeEmail(body.email);
+    email = normalizeEmail(trustedEmail ?? body.email);
   } catch (err) {
     if (err instanceof InvalidEmailError) fields.email = "invalid";
     else throw err;

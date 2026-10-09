@@ -4,15 +4,21 @@ import { useState } from "react";
 
 import { BACKGROUND_CHECK_URL } from "@/lib/serve/background-check";
 
-export function ServeForm({ services }: { services: readonly string[] }) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
+export function ServeForm({
+  services,
+  name: initialName,
+  email,
+}: {
+  services: readonly string[];
+  name: string;
+  email: string;
+}) {
+  const [name, setName] = useState(initialName);
   const [bio, setBio] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [emailSent, setEmailSent] = useState(true);
 
   function toggle(service: string) {
     setChosen((current) =>
@@ -33,14 +39,20 @@ export function ServeForm({ services }: { services: readonly string[] }) {
       const response = await fetch("/api/serve", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, email, services: chosen, bio }),
+        body: JSON.stringify({ name, services: chosen, bio }),
       });
       const body = (await response.json().catch(() => null)) as
-        | { backgroundCheckUrl?: string; emailSent?: boolean }
+        | { backgroundCheckUrl?: string; error?: string }
         | null;
       if (!response.ok) {
         popup?.close();
-        setError("Please check your name, email, and at least one way you can serve.");
+        setError(
+          body?.error === "passkey_required"
+            ? "Add a passkey before offering to serve."
+            : body?.error === "unauthenticated"
+              ? "Sign in with your passkey, then try again."
+              : "Please check your name and choose at least one way you can serve.",
+        );
         return;
       }
       const url = body?.backgroundCheckUrl ?? BACKGROUND_CHECK_URL;
@@ -49,7 +61,6 @@ export function ServeForm({ services }: { services: readonly string[] }) {
       } else {
         window.open(url, "_blank", "noopener,noreferrer");
       }
-      setEmailSent(body?.emailSent !== false);
       setSaved(true);
     } catch {
       popup?.close();
@@ -66,17 +77,10 @@ export function ServeForm({ services }: { services: readonly string[] }) {
           Your application is saved. A background-check form should have opened in a
           new window.
         </p>
-        {emailSent ? (
-          <p className="text-sm text-ascend-navy/75">
-            We also sent a sign-in link to {email}. An admin will open the Help
-            Wanted board after your background check is complete.
-          </p>
-        ) : (
-          <p className="text-sm text-red-800">
-            We saved your application, but the sign-in email could not be sent. You
-            can still finish the background check, then ask an admin for a sign-in link.
-          </p>
-        )}
+        <p className="text-sm text-ascend-navy/75">
+          You are signed in as {email}. An admin will open the Help Wanted board after
+          your background check is complete.
+        </p>
         <a
           href={BACKGROUND_CHECK_URL}
           target="_blank"
@@ -91,22 +95,13 @@ export function ServeForm({ services }: { services: readonly string[] }) {
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
+      <p className="text-sm text-ascend-navy/75">Signed in as {email}</p>
       <label className="flex flex-col gap-1 text-sm font-semibold text-ascend-navy">
         Name
         <input
           required
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="rounded-2xl border border-ascend-navy/15 px-3 py-2 font-normal"
-        />
-      </label>
-      <label className="flex flex-col gap-1 text-sm font-semibold text-ascend-navy">
-        Email
-        <input
-          required
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
           className="rounded-2xl border border-ascend-navy/15 px-3 py-2 font-normal"
         />
       </label>
