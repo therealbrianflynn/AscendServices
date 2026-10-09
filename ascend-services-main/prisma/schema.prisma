@@ -40,6 +40,9 @@ model User {
   /// (Spec v6 §4) and captured during first-time onboarding (Spec v6 §5).
   bio                String?
   onboarding_token   String?
+  /// Set when an admin confirms this SERVER may open the Help Wanted board.
+  /// ADMIN does not need this stamp.
+  validatedAt        DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
@@ -186,4 +189,39 @@ model SystemSettings {
   stalled_progress_days       Int      @default(3)
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
+}
+
+/// A video an admin published for the community to watch.
+model MediaItem {
+  id          String   @id @default(uuid())
+  title       String
+  description String   @default("")
+  /// "file" stores a filename under the upload directory. "link" stores an https URL.
+  kind        String
+  source      String
+  createdAt   DateTime @default(now())
+}
+
+/// A church or ministry Ascend Services works with.
+model Partner {
+  id        String   @id @default(uuid())
+  name      String
+  summary   String
+  website   String
+  location  String   @default("")
+  createdAt DateTime @default(now())
+}
+
+/// A community gathering shown on the public calendar.
+model CommunityEvent {
+  id        String    @id @default(uuid())
+  title     String
+  details   String    @default("")
+  location  String    @default("")
+  link      String    @default("")
+  startsAt  DateTime
+  endsAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([startsAt])
 }

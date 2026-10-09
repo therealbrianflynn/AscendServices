@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { canOpenHelpBoard } from "@/lib/auth/board-access";
 import { requireSession } from "@/lib/auth/guard";
 import { log } from "@/lib/logger";
 import { assignRequestToVolunteer } from "@/lib/requests/assignment";
@@ -31,6 +32,10 @@ export async function POST(
   if (!volunteer) {
     // Signed cookie for an account that no longer exists.
     return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+
+  if (!canOpenHelpBoard(volunteer)) {
+    return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
   const { id } = await params;

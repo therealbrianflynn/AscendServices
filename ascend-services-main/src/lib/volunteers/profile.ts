@@ -14,6 +14,7 @@ export const VOLUNTEER_PROFILE_SELECT = {
   role: true,
   services_provided: true,
   bio: true,
+  validatedAt: true,
 } as const;
 
 export interface VolunteerProfile {
@@ -23,6 +24,7 @@ export interface VolunteerProfile {
   role: AppRole;
   services_provided: string[];
   bio: string | null;
+  validatedAt: Date | null;
 }
 
 export interface VolunteerProfileRecord {
@@ -32,10 +34,15 @@ export interface VolunteerProfileRecord {
   role: string;
   services_provided: string[];
   bio: string | null;
+  validatedAt?: Date | null;
 }
 
 export function toVolunteerProfile(record: VolunteerProfileRecord): VolunteerProfile {
-  return { ...record, role: parseAppRole(record.role) };
+  return {
+    ...record,
+    role: parseAppRole(record.role),
+    validatedAt: record.validatedAt ?? null,
+  };
 }
 
 /**

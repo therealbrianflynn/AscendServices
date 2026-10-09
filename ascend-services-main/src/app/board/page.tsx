@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { canOpenHelpBoard } from "@/lib/auth/board-access";
 import { readSession } from "@/lib/auth/guard";
 import { listAssignmentsForVolunteer, loadHelpWantedBoard } from "@/lib/requests/board";
 import { REQUEST_STATUS_LABELS } from "@/lib/requests/status";
@@ -37,6 +38,7 @@ export default async function HelpWantedBoardPage({
 
   const volunteer = await findVolunteerProfile(session.sub);
   if (!volunteer) redirect("/signin");
+  if (!canOpenHelpBoard(volunteer)) redirect("/serve?pending=1");
 
   const requestedSkills = readSkillParam((await searchParams)[BOARD_SKILL_PARAM]);
 
@@ -70,7 +72,7 @@ export default async function HelpWantedBoardPage({
           right now. Thank you for checking in.
         </p>
       ) : (
-        <ul className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-8 grid gap-5 overflow-visible sm:grid-cols-2 lg:grid-cols-3">
           {board.open.map((request, index) => (
             <StickyNote
               key={request.id}

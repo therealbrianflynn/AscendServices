@@ -12,14 +12,23 @@ export function SiteFooter() {
           </p>
         </div>
         <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2 text-sm font-semibold text-ascend-navy">
+          <Link href="/about" className="hover:text-ascend-sky-deep">
+            About
+          </Link>
           <Link href="/request" className="hover:text-ascend-sky-deep">
             Request help
           </Link>
-          <Link href="/signin" className="hover:text-ascend-sky-deep">
+          <Link href="/serve" className="hover:text-ascend-sky-deep">
             Serve
           </Link>
-          <Link href="/board" className="hover:text-ascend-sky-deep">
-            Help wanted
+          <Link href="/media" className="hover:text-ascend-sky-deep">
+            Media
+          </Link>
+          <Link href="/partners" className="hover:text-ascend-sky-deep">
+            Partners
+          </Link>
+          <Link href="/events" className="hover:text-ascend-sky-deep">
+            Events
           </Link>
         </nav>
       </div>

@@ -69,7 +69,7 @@ export default function Home() {
               Request help
             </Link>
             <Link
-              href="/signin"
+              href="/serve"
               className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-ascend-navy shadow-sm ring-1 ring-ascend-navy/10"
             >
               I want to serve

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 
-import { requireSession, sessionIdentity } from "@/lib/auth/guard";
+import { canOpenHelpBoard } from "@/lib/auth/board-access";
+import { requireSession } from "@/lib/auth/guard";
+import { ADMIN_ROLE } from "@/lib/auth/roles";
+import { findVolunteerProfile } from "@/lib/volunteers/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -9,5 +12,18 @@ export async function GET() {
   const guarded = await requireSession();
   if (!guarded.ok) return guarded.response;
 
-  return NextResponse.json({ user: sessionIdentity(guarded.session) });
+  const viewer = await findVolunteerProfile(guarded.session.sub);
+  if (!viewer) {
+    return NextResponse.json({ error: "unauthenticated" }, { status: 401 });
+  }
+
+  return NextResponse.json({
+    user: {
+      id: viewer.id,
+      email: viewer.email,
+      role: viewer.role,
+      admin: viewer.role === ADMIN_ROLE,
+      board: canOpenHelpBoard(viewer),
+    },
+  });
 }

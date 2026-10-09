@@ -148,6 +148,7 @@ describe("listAdminUsers", () => {
         email: volunteer.email,
         role: "SERVER",
         services_provided: ["Yard work", "Meals"],
+        validated: false,
         createdAt: "2026-02-01T00:00:00.000Z",
       },
       {
@@ -156,6 +157,7 @@ describe("listAdminUsers", () => {
         email: admin.email,
         role: "ADMIN",
         services_provided: [],
+        validated: false,
         createdAt: "2026-01-01T00:00:00.000Z",
       },
     ]);

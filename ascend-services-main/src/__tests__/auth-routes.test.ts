@@ -188,12 +188,24 @@ describe("GET /api/auth/callback", () => {
 describe("GET /api/auth/session", () => {
   it("returns the signed-in identity", async () => {
     mockCookieJar(sessionCookieFor(serverUser));
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({
+      ...serverUser,
+      services_provided: [],
+      bio: null,
+      validatedAt: null,
+    } as never);
 
     const res = await getSession();
 
     expect(res.status).toBe(200);
     await expect(res.json()).resolves.toEqual({
-      user: { id: serverUser.id, email: serverUser.email, role: "SERVER" },
+      user: {
+        id: serverUser.id,
+        email: serverUser.email,
+        role: "SERVER",
+        admin: false,
+        board: false,
+      },
     });
   });
 

@@ -8,6 +8,7 @@ import { readSlaSettings } from "@/lib/settings/sla-settings";
 
 import { PageIntro } from "../page-intro";
 import { RequestsGrid } from "./requests-grid";
+import { ServerRoster } from "./server-roster";
 import { SlaSettingsForm } from "./sla-settings-form";
 import { UsersGrid } from "./users-grid";
 import { VolunteerImportPanel } from "./volunteer-import-panel";
@@ -96,6 +97,13 @@ export default async function AdminConsolePage() {
         <VolunteerImportPanel />
 
         <UsersGrid users={users} />
+
+        <h3 className="mt-8 text-base font-semibold text-ascend-navy">Server validation</h3>
+        <p className="mt-1 text-sm text-ascend-taupe">
+          A server can open the Help Wanted board only after you mark them validated.
+          Admins always have access.
+        </p>
+        <ServerRoster users={users} />
       </section>
     </main>
   );

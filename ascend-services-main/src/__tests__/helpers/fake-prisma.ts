@@ -31,6 +31,7 @@ export interface FakeMemberRow {
   bio: string | null;
   /** Bearer credential: present on the row so tests can prove it is unselected. */
   onboarding_token?: string | null;
+  validatedAt?: Date | null;
   createdAt: Date;
 }
 
