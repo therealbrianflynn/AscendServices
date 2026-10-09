@@ -13,6 +13,7 @@ datasource db {
 enum Role {
   SERVER
   ADMIN
+  REQUESTER
 }
 
 enum RequestStatus {
@@ -43,6 +44,8 @@ model User {
   /// Set when an admin confirms this SERVER may open the Help Wanted board.
   /// ADMIN does not need this stamp.
   validatedAt        DateTime?
+  /// Set when an admin turns the account off. A deactivated member cannot sign in.
+  deactivatedAt      DateTime?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 

@@ -1,5 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/lib/prisma", () => ({
+  prisma: {
+    user: {
+      findUnique: vi.fn(async ({ where }: { where: { id?: string } }) => {
+        if (
+          where.id === "44444444-4444-4444-8444-444444444444" ||
+          where.id === "55555555-5555-4555-8555-555555555555"
+        ) {
+          return { id: where.id, deactivatedAt: null, role: "SERVER" };
+        }
+        return null;
+      }),
+    },
+  },
+}));
+
 vi.mock("@/lib/auth/webauthn/registration", () => ({
   startPasskeyRegistration: vi.fn(),
   finishPasskeyRegistration: vi.fn(),

@@ -59,6 +59,11 @@ export function SignedInAccount({
             Admin
           </Link>
         ) : null}
+        {admin ? (
+          <Link href="/admin/users" className="rounded-full bg-ascend-navy px-4 py-2.5 text-sm font-semibold text-white">
+            Users
+          </Link>
+        ) : null}
         <button
           type="button"
           onClick={signOut}

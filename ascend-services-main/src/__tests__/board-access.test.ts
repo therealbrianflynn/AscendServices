@@ -16,4 +16,8 @@ describe("canOpenHelpBoard", () => {
   it("keeps an unvalidated server off the board", () => {
     expect(canOpenHelpBoard({ role: "SERVER", validatedAt: null })).toBe(false);
   });
+
+  it("keeps a requester off the board", () => {
+    expect(canOpenHelpBoard({ role: "REQUESTER", validatedAt: null })).toBe(false);
+  });
 });

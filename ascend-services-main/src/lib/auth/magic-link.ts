@@ -50,6 +50,21 @@ export async function requestMagicLink({
     select: USER_SELECT,
   });
 
+  if (existing?.deactivatedAt) {
+    log({
+      level: "warn",
+      msg: "magic_link_blocked",
+      actorId: existing.id,
+      reason: "deactivated",
+    });
+    return {
+      user: toAuthUser(existing),
+      token: "",
+      expiresAt: new Date(0),
+      created: false,
+    };
+  }
+
   const record =
     existing ??
     (await prisma.user.create({
@@ -126,6 +141,7 @@ export async function consumeMagicLink(
   });
 
   if (!record) return reject("invalid");
+  if (record.user.deactivatedAt) return reject("invalid", record.userId);
   if (record.consumedAt) return reject("consumed", record.userId);
 
   const now = new Date();

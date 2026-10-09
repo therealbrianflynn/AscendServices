@@ -32,6 +32,7 @@ export interface FakeMemberRow {
   /** Bearer credential: present on the row so tests can prove it is unselected. */
   onboarding_token?: string | null;
   validatedAt?: Date | null;
+  deactivatedAt?: Date | null;
   createdAt: Date;
 }
 
@@ -111,7 +112,8 @@ export interface FakePrisma {
   failNextAuditCreate(error: Error): void;
 }
 
-export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
+export function createFakePrisma(seed: FakeMemberRow[] = []): FakePrisma {
+  const users = seed.map((row) => ({ ...row }));
   const requests: FakeRequestRow[] = [];
   const auditLogs: FakeAuditLogRow[] = [];
   const systemSettings: FakeSystemSettingsRow[] = [];

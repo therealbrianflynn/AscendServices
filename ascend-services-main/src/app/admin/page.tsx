@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { listAdminRequests } from "@/lib/admin/requests";
 import { listAdminUsers } from "@/lib/admin/users";
@@ -81,8 +82,15 @@ export default async function AdminConsolePage() {
           Members
         </h2>
         <p className="mt-1 text-sm text-ascend-taupe">
-          Volunteers self-register as SERVER; ADMIN is granted by the seed script.
+          Add people, edit their details, set Admin, Server, or Requester, and
+          deactivate accounts from user management.
         </p>
+        <Link
+          href="/admin/users"
+          className="mt-4 inline-flex rounded-full bg-ascend-navy px-4 py-2.5 text-sm font-semibold text-white"
+        >
+          Manage users
+        </Link>
 
         <h3
           id="admin-import-heading"

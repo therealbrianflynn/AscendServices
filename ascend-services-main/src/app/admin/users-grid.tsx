@@ -1,5 +1,6 @@
 "use client";
 
+import { ROLE_LABELS } from "@/lib/admin/managed-user";
 import type { AdminUserView } from "@/lib/admin/users";
 
 import { createAdminColumnHelper, formatDay } from "./admin-grid";
@@ -13,7 +14,11 @@ const helper = createAdminColumnHelper<AdminUserView>();
 const columns = helper.columns([
   helper.accessor("name", { header: "Name" }),
   helper.accessor("email", { header: "Email" }),
-  helper.accessor("role", { header: "Role" }),
+  helper.accessor((user) => ROLE_LABELS[user.role], { id: "role", header: "Role" }),
+  helper.accessor((user) => (user.active ? "Active" : "Deactivated"), {
+    id: "active",
+    header: "Status",
+  }),
   helper.accessor(
     (user) =>
       user.services_provided.length > 0

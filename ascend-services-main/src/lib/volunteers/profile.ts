@@ -15,6 +15,7 @@ export const VOLUNTEER_PROFILE_SELECT = {
   services_provided: true,
   bio: true,
   validatedAt: true,
+  deactivatedAt: true,
 } as const;
 
 export interface VolunteerProfile {
@@ -35,12 +36,17 @@ export interface VolunteerProfileRecord {
   services_provided: string[];
   bio: string | null;
   validatedAt?: Date | null;
+  deactivatedAt?: Date | null;
 }
 
 export function toVolunteerProfile(record: VolunteerProfileRecord): VolunteerProfile {
   return {
-    ...record,
+    id: record.id,
+    name: record.name,
+    email: record.email,
     role: parseAppRole(record.role),
+    services_provided: record.services_provided,
+    bio: record.bio,
     validatedAt: record.validatedAt ?? null,
   };
 }
@@ -57,5 +63,6 @@ export async function findVolunteerProfile(
     select: VOLUNTEER_PROFILE_SELECT,
   });
 
-  return record ? toVolunteerProfile(record) : null;
+  if (!record || record.deactivatedAt) return null;
+  return toVolunteerProfile(record);
 }

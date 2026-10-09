@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ROLE_LABELS } from "@/lib/admin/managed-user";
 import type { AdminUserView } from "@/lib/admin/users";
 
 export function ServerRoster({ users }: { users: AdminUserView[] }) {
@@ -47,13 +48,16 @@ export function ServerRoster({ users }: { users: AdminUserView[] }) {
         </thead>
         <tbody>
           {users.map((user) => {
-            const open = user.role === "ADMIN" || user.validated;
+            const open =
+              user.active &&
+              (user.role === "ADMIN" || (user.role === "SERVER" && user.validated));
+            const access = !user.active ? "Deactivated" : open ? "Open" : user.role === "SERVER" ? "Waiting" : "Closed";
             return (
               <tr key={user.id} className="border-t border-ascend-navy/10">
                 <td className="px-4 py-3">{user.name}</td>
                 <td className="px-4 py-3">{user.email}</td>
-                <td className="px-4 py-3">{user.role}</td>
-                <td className="px-4 py-3">{open ? "Open" : "Waiting"}</td>
+                <td className="px-4 py-3">{ROLE_LABELS[user.role]}</td>
+                <td className="px-4 py-3">{access}</td>
                 <td className="px-4 py-3">
                   {user.role === "SERVER" ? (
                     <button
@@ -65,7 +69,7 @@ export function ServerRoster({ users }: { users: AdminUserView[] }) {
                       {user.validated ? "Remove validation" : "Validate server"}
                     </button>
                   ) : (
-                    <span className="text-ascend-navy/50">Admin</span>
+                    <span className="text-ascend-navy/50">{ROLE_LABELS[user.role]}</span>
                   )}
                 </td>
               </tr>

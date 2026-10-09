@@ -21,6 +21,7 @@ const PUBLIC_LINKS = [
 ] as const;
 
 function isCurrent(pathname: string, href: string): boolean {
+  if (href === "/admin") return pathname === "/admin";
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
@@ -56,7 +57,12 @@ export function SiteHeader() {
   const links = [
     ...PUBLIC_LINKS,
     ...(viewer?.board ? [{ href: "/board", label: "Help wanted" }] : []),
-    ...(viewer?.admin ? [{ href: "/admin", label: "Admin" }] : []),
+    ...(viewer?.admin
+      ? [
+          { href: "/admin", label: "Admin" },
+          { href: "/admin/users", label: "Users" },
+        ]
+      : []),
   ];
   const accountLabel = viewer ? "Account" : "Sign in";
 
