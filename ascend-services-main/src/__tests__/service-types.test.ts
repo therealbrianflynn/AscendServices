@@ -7,6 +7,8 @@ describe("service catalogue", () => {
     const options = getServiceTypeOptions({} as NodeJS.ProcessEnv);
     expect(options).toContain("Counseling");
     expect(options).toContain("Auto Mechanic");
+    expect(options).toContain("Handyman");
+    expect(options).toContain("Adopt a Military Family");
   });
 
   it("uses a configured list when one is provided", () => {

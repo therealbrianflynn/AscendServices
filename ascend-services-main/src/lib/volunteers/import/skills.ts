@@ -10,9 +10,61 @@
 /** A cell may list several skills; ministries use commas, semicolons or pipes. */
 const SKILL_SEPARATORS = /[,;|]/;
 
+/**
+ * Care-team exports write several areas in one cell with spaces, not commas.
+ * Longer phrases are matched first so "car mechanic" is not left as two words.
+ * "Car mechanic" is stored as Auto Mechanic, the catalogue name for that help.
+ */
+const SERVICE_PHRASES = [
+  { phrase: "adopt a military family", label: "Adopt a Military Family" },
+  { phrase: "car mechanic", label: "Auto Mechanic" },
+  { phrase: "auto mechanic", label: "Auto Mechanic" },
+  { phrase: "handyman", label: "Handyman" },
+  { phrase: "counseling", label: "Counseling" },
+] as const;
+
 /** Splits one cell into trimmed skills, dropping blanks and repeats. */
 export function splitSkills(raw: string): string[] {
-  return dedupe(raw.split(SKILL_SEPARATORS).map((skill) => skill.trim()));
+  const pieces = raw.split(SKILL_SEPARATORS).map((skill) => skill.trim());
+  return dedupe(pieces.flatMap(recognizeSkill));
+}
+
+function recognizeSkill(piece: string): string[] {
+  if (piece.length === 0) return [];
+
+  const labels: string[] = [];
+  let rest = piece.toLowerCase().replace(/\s+/g, " ").trim();
+
+  while (rest.length > 0) {
+    const match = earliestPhrase(rest);
+    if (!match || match.index !== 0) return [piece];
+    labels.push(match.label);
+    rest = rest.slice(match.phrase.length).trim();
+  }
+
+  return labels.length > 0 ? labels : [piece];
+}
+
+function earliestPhrase(text: string): { phrase: string; label: string; index: number } | null {
+  let best: { phrase: string; label: string; index: number } | null = null;
+
+  for (const entry of SERVICE_PHRASES) {
+    const index = text.indexOf(entry.phrase);
+    if (index === -1) continue;
+    const end = index + entry.phrase.length;
+    const startsClean = index === 0 || text[index - 1] === " ";
+    const endsClean = end === text.length || text[end] === " ";
+    if (!startsClean || !endsClean) continue;
+    if (
+      !best ||
+      index < best.index ||
+      (index === best.index && entry.phrase.length > best.phrase.length)
+    ) {
+      best = { phrase: entry.phrase, label: entry.label, index };
+    }
+  }
+
+  return best;
 }
 
 /**

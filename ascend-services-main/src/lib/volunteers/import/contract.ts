@@ -23,7 +23,7 @@ export const VOLUNTEER_IMPORT_MAX_ROWS = 500;
 /** Comfortably above `VOLUNTEER_IMPORT_MAX_ROWS` of real rows, well below a DoS. */
 export const VOLUNTEER_IMPORT_MAX_BYTES = 2 * 1024 * 1024;
 
-export type VolunteerImportField = "email" | "name" | "services_provided" | "bio";
+export type VolunteerImportField = "email" | "name" | "services_provided" | "bio" | "phone";
 
 export interface VolunteerImportColumn {
   field: VolunteerImportField;
@@ -47,7 +47,14 @@ export const VOLUNTEER_IMPORT_COLUMNS: readonly VolunteerImportColumn[] = [
   {
     field: "name",
     header: "Name",
-    aliases: ["name", "full name", "volunteer", "volunteer name"],
+    aliases: [
+      "name",
+      "full name",
+      "volunteer",
+      "volunteer name",
+      "first & last name",
+      "first and last name",
+    ],
     required: false,
     description:
       "Used for a new account; a blank cell leaves an existing name untouched.",
@@ -55,7 +62,14 @@ export const VOLUNTEER_IMPORT_COLUMNS: readonly VolunteerImportColumn[] = [
   {
     field: "services_provided",
     header: "Skills",
-    aliases: ["skills", "skill", "services", "services provided", "services offered"],
+    aliases: [
+      "skills",
+      "skill",
+      "services",
+      "services provided",
+      "services offered",
+      "what area do you have experience or are wanting to provide?",
+    ],
     required: false,
     description:
       "Comma or semicolon separated. Added to the skills already on the profile; nothing is removed.",
@@ -67,6 +81,14 @@ export const VOLUNTEER_IMPORT_COLUMNS: readonly VolunteerImportColumn[] = [
     required: false,
     description:
       "Short introduction shown to a requester; a blank cell leaves an existing bio untouched.",
+  },
+  {
+    field: "phone",
+    header: "Phone",
+    aliases: ["phone", "phone number", "mobile", "mobile phone"],
+    required: false,
+    description:
+      "Kept on the bio as a phone line so the ministry can still reach the person.",
   },
 ];
 

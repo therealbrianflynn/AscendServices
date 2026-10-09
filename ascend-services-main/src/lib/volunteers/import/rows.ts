@@ -98,7 +98,7 @@ export function readVolunteerImportRows(table: VolunteerImportTable): VolunteerI
       email,
       name: optional(cell("name")),
       services_provided: splitSkills(cell("services_provided")),
-      bio: optional(cell("bio")),
+      bio: bioWithPhone(optional(cell("bio")), cell("phone")),
     });
   }
 
@@ -123,6 +123,15 @@ function readCell(
 
 function optional(value: string): string | null {
   return value.length > 0 ? value : null;
+}
+
+/** A phone number has no column of its own, so it rides along on the bio. */
+function bioWithPhone(bio: string | null, phone: string): string | null {
+  const line = phone.length > 0 ? `Phone: ${phone}` : "";
+  if (line.length === 0) return bio;
+  if (!bio) return line;
+  if (bio.includes(line)) return bio;
+  return `${bio}\n${line}`;
 }
 
 function rowError(
