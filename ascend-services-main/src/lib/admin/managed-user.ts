@@ -1,5 +1,6 @@
 import { InvalidEmailError, normalizeEmail } from "@/lib/auth/email-address";
 import { ADMIN_ROLE, isAppRole, SERVER_ROLE, type AppRole } from "@/lib/auth/roles";
+import { parseOptionalPhone } from "@/lib/phone";
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   ADMIN: "Admin",
@@ -32,6 +33,7 @@ export interface ManagedUserDraft {
   email: string;
   role: AppRole;
   bio: string;
+  phone: string | null;
   services: string[];
   validated: boolean;
   active: boolean;
@@ -74,6 +76,9 @@ export function parseManagedUser(
   const bio = readString(body, "bio");
   if (bio.length > BIO_MAX) throw new ManagedUserError("invalid");
 
+  const phone = parseOptionalPhone(body.phone);
+  if (!phone.ok) throw new ManagedUserError("invalid");
+
   if (!Array.isArray(body.services)) throw new ManagedUserError("invalid");
   const services: string[] = [];
   for (const service of body.services) {
@@ -91,6 +96,7 @@ export function parseManagedUser(
     email,
     role: body.role,
     bio,
+    phone: phone.phone,
     services,
     validated: body.validated,
     active: body.active,

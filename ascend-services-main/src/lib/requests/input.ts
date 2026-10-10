@@ -1,4 +1,5 @@
 import { InvalidEmailError, normalizeEmail } from "@/lib/auth/email-address";
+import { parseOptionalPhone } from "@/lib/phone";
 
 import { getServiceTypeOptions } from "./service-types";
 
@@ -13,6 +14,7 @@ export const REQUEST_FIELD_MAX_LENGTHS = {
   requester_name: 120,
   /** RFC 5321 maximum; the column is optional, not the length. */
   requester_email: 254,
+  requester_phone: 20,
   service_type: 80,
   neighborhood: 120,
   street_address: 240,
@@ -27,6 +29,7 @@ export interface HelpRequestInput {
   requester_name: string;
   /** Optional: only used to send the Spec v6 §4 connection email. */
   requester_email: string | null;
+  requester_phone: string | null;
   service_type: string;
   neighborhood: string;
   street_address: string;
@@ -71,6 +74,7 @@ export function parseHelpRequestInput(
   }
 
   const requester_email = takeOptionalEmail(source, fieldErrors);
+  const requester_phone = takeOptionalPhone(source, fieldErrors);
   const prayer_request = takeOptional(source, "prayer_request", fieldErrors);
   const prayer_private = toBoolean(source.prayer_private, true);
 
@@ -81,6 +85,7 @@ export function parseHelpRequestInput(
   return {
     requester_name,
     requester_email,
+    requester_phone,
     service_type,
     neighborhood,
     street_address,
@@ -105,6 +110,18 @@ function takeRequired(
     return "";
   }
   return value;
+}
+
+function takeOptionalPhone(
+  source: Record<string, unknown>,
+  fieldErrors: RequestFieldErrors,
+): string | null {
+  const parsed = parseOptionalPhone(source.requester_phone);
+  if (!parsed.ok) {
+    fieldErrors.requester_phone = parsed.reason === "too_long" ? "too_long" : "invalid_phone";
+    return null;
+  }
+  return parsed.phone;
 }
 
 function takeOptional(

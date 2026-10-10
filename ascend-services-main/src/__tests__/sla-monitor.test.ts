@@ -381,6 +381,7 @@ describe("runSlaMonitor — privacy", () => {
       expect(line).not.toHaveProperty("street_address");
       expect(line).not.toHaveProperty("requester_name");
       expect(line).not.toHaveProperty("requester_email");
+      expect(line).not.toHaveProperty("requester_phone");
     }
   });
 

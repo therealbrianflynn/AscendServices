@@ -1,4 +1,5 @@
 import { InvalidEmailError, normalizeEmail } from "@/lib/auth/email-address";
+import { parseOptionalPhone } from "@/lib/phone";
 
 const NAME_MAX = 80;
 const BIO_MAX = 500;
@@ -8,9 +9,10 @@ export interface ServeApplication {
   email: string;
   services: string[];
   bio: string;
+  phone: string | null;
 }
 
-export type ServeField = "name" | "email" | "services" | "bio";
+export type ServeField = "name" | "email" | "services" | "bio" | "phone";
 export type ServeFieldErrors = Partial<Record<ServeField, "required" | "invalid" | "too_long" | "unsupported">>;
 
 export function parseServeApplication(
@@ -44,11 +46,17 @@ export function parseServeApplication(
   const bio = typeof body.bio === "string" ? body.bio.trim() : "";
   if (bio.length > BIO_MAX) fields.bio = "too_long";
 
+  const parsedPhone = parseOptionalPhone(body.phone);
+  if (!parsedPhone.ok) fields.phone = parsedPhone.reason === "too_long" ? "too_long" : "invalid";
+
   if (Object.keys(fields).length > 0 || services === "required" || services === "unsupported") {
     return { ok: false, fields };
   }
 
-  return { ok: true, value: { name, email, services, bio } };
+  return {
+    ok: true,
+    value: { name, email, services, bio, phone: parsedPhone.ok ? parsedPhone.phone : null },
+  };
 }
 
 function parseServices(

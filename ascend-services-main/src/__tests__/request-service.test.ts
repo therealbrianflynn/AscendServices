@@ -32,6 +32,7 @@ const PRAYER = "Please pray for my mother.";
 const input: HelpRequestInput = {
   requester_name: NAME,
   requester_email: null,
+  requester_phone: null,
   service_type: "Yard work",
   neighborhood: "Eastside",
   street_address: STREET,

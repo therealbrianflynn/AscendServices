@@ -8,6 +8,7 @@ import { DataGrid } from "./data-grid";
 
 const UNASSIGNED = "Unassigned";
 const NO_EMAIL = "No email on file";
+const NO_PHONE = "No phone on file";
 
 const helper = createAdminColumnHelper<AdminRequestView>();
 
@@ -28,7 +29,11 @@ const columns = helper.columns([
   helper.accessor("requester_name", { header: "Requester" }),
   helper.accessor((request) => request.requester_email ?? NO_EMAIL, {
     id: "requester_email",
-    header: "Contact",
+    header: "Email",
+  }),
+  helper.accessor((request) => request.requester_phone ?? NO_PHONE, {
+    id: "requester_phone",
+    header: "Phone",
   }),
   helper.accessor("neighborhood", { header: "Community" }),
   helper.accessor("street_address", { header: "Street address" }),

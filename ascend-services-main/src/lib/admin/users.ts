@@ -13,6 +13,7 @@ export const ADMIN_USER_SELECT = {
   role: true,
   services_provided: true,
   bio: true,
+  phone: true,
   validatedAt: true,
   deactivatedAt: true,
   createdAt: true,
@@ -28,6 +29,7 @@ export interface AdminUserView {
   role: AppRole;
   services_provided: string[];
   bio: string;
+  phone: string;
   validated: boolean;
   active: boolean;
   createdAt: string;
@@ -40,6 +42,7 @@ export interface AdminUserRecord {
   role: string;
   services_provided: string[];
   bio?: string | null;
+  phone?: string | null;
   validatedAt?: Date | null;
   deactivatedAt?: Date | null;
   createdAt: Date;
@@ -53,6 +56,7 @@ export function toAdminUserView(record: AdminUserRecord): AdminUserView {
     role: parseAppRole(record.role),
     services_provided: record.services_provided,
     bio: record.bio ?? "",
+    phone: record.phone ?? "",
     validated: record.validatedAt != null,
     active: record.deactivatedAt == null,
     createdAt: record.createdAt.toISOString(),

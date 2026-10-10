@@ -21,7 +21,7 @@ export default async function UserManagementPage() {
   const users = await listAdminUsers();
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-12">
+    <main className="mx-auto max-w-7xl px-6 py-12">
       <PageIntro
         eyebrow="Ministry team"
         title="User management"

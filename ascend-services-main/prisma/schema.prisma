@@ -40,6 +40,9 @@ model User {
   /// Short self-introduction shown to a requester in the connection email
   /// (Spec v6 §4) and captured during first-time onboarding (Spec v6 §5).
   bio                String?
+  /// How to reach this person by phone. Shared with admins, and with a
+  /// volunteer only after they are assigned a request.
+  phone              String?
   onboarding_token   String?
   /// Set when an admin confirms this SERVER may open the Help Wanted board.
   /// ADMIN does not need this stamp.
@@ -128,6 +131,9 @@ model Request {
   /// requester when a volunteer is assigned, which is only possible when the
   /// requester left an address; the connection email is skipped otherwise.
   requester_email String?
+  /// Optional. Private like the street address: admins and the assigned
+  /// volunteer may see it. Never returned on the public Help Wanted board.
+  requester_phone String?
   service_type    String
   neighborhood    String
   /// Private (Spec v6 §3): visible only to the tracking-token holder and, once

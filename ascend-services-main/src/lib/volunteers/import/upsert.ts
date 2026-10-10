@@ -23,6 +23,7 @@ const IMPORT_TARGET_SELECT = {
   email: true,
   services_provided: true,
   bio: true,
+  phone: true,
 } as const;
 
 export type VolunteerUpsertOutcome = "created" | "merged" | "unchanged";
@@ -45,6 +46,7 @@ interface ImportTarget {
   email: string;
   services_provided: string[];
   bio: string | null;
+  phone?: string | null;
 }
 
 /**
@@ -86,6 +88,7 @@ async function createVolunteer(
         role: SERVER_ROLE,
         services_provided: row.services_provided,
         bio: row.bio,
+        phone: row.phone,
         onboarding_token: createOnboardingToken(),
       },
       select: { id: true, name: true, email: true },
@@ -132,10 +135,13 @@ async function mergeVolunteer(
   const added = addedSkills(existing.services_provided, row.services_provided);
   const name = row.name !== null && row.name !== existing.name ? row.name : null;
   const bio = row.bio !== null && row.bio !== existing.bio ? row.bio : null;
+  const phone =
+    row.phone !== null && row.phone !== (existing.phone ?? null) ? row.phone : null;
   const changed = [
     ...(added.length > 0 ? ["services_provided"] : []),
     ...(name !== null ? ["name"] : []),
     ...(bio !== null ? ["bio"] : []),
+    ...(phone !== null ? ["phone"] : []),
   ];
 
   if (changed.length === 0) {
@@ -158,6 +164,7 @@ async function mergeVolunteer(
           : {}),
         ...(name !== null ? { name } : {}),
         ...(bio !== null ? { bio } : {}),
+        ...(phone !== null ? { phone } : {}),
       },
     });
 

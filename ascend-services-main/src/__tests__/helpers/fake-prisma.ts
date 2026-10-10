@@ -29,6 +29,7 @@ export interface FakeMemberRow {
   role: string;
   services_provided: string[];
   bio: string | null;
+  phone?: string | null;
   /** Bearer credential: present on the row so tests can prove it is unselected. */
   onboarding_token?: string | null;
   validatedAt?: Date | null;
@@ -255,6 +256,7 @@ export function createFakePrisma(seed: FakeMemberRow[] = []): FakePrisma {
           role: "SERVER",
           services_provided: [],
           bio: null,
+          phone: null,
           onboarding_token: null,
           createdAt: new Date(),
           ...data,

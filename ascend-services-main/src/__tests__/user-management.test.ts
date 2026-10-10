@@ -100,6 +100,7 @@ describe("parseManagedUser", () => {
       email: "ruth@example.com",
       role: "REQUESTER",
       bio: "Needs a ride.",
+      phone: null,
       services: ["Counseling"],
       validated: true,
       active: true,
@@ -186,6 +187,7 @@ describe("user directory", () => {
         email: "naomi@example.com",
         role: "REQUESTER",
         bio: "",
+        phone: "3175550100",
         services: ["Auto Mechanic"],
         validated: false,
         active: false,
@@ -198,6 +200,7 @@ describe("user directory", () => {
     expect(created.emailSent).toBe(false);
     expect(saved?.role).toBe("REQUESTER");
     expect(saved?.services_provided).toEqual(["Auto Mechanic"]);
+    expect(saved?.phone).toBe("3175550100");
     expect(saved?.deactivatedAt ?? null).toBeNull();
   });
 
@@ -209,6 +212,7 @@ describe("user directory", () => {
         email: server.email,
         role: "SERVER",
         bio: "Brings meals.",
+        phone: null,
         services: ["Meals"],
         validated: false,
         active: false,
@@ -231,6 +235,7 @@ describe("user directory", () => {
           email: admin.email,
           role: "REQUESTER",
           bio: "",
+          phone: null,
           services: [],
           validated: false,
           active: true,

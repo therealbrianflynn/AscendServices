@@ -1,17 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 import { ROLE_LABELS } from "@/lib/admin/managed-user";
 import type { AdminUserView } from "@/lib/admin/users";
 import { APP_ROLES, type AppRole } from "@/lib/auth/roles";
+
+import { UsersGrid } from "../users-grid";
 
 interface Draft {
   name: string;
   email: string;
   role: AppRole;
   bio: string;
+  phone: string;
   services: string[];
   validated: boolean;
   active: boolean;
@@ -22,6 +25,7 @@ const EMPTY: Draft = {
   email: "",
   role: "REQUESTER",
   bio: "",
+  phone: "",
   services: [],
   validated: false,
   active: true,
@@ -36,6 +40,7 @@ function draftFrom(user: AdminUserView): Draft {
     email: user.email,
     role: user.role,
     bio: user.bio,
+    phone: user.phone,
     services: user.services_provided,
     validated: user.validated,
     active: user.active,
@@ -60,6 +65,7 @@ export function UserManager({
   actorId: string;
 }) {
   const router = useRouter();
+  const detailRef = useRef<HTMLFormElement>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [busy, setBusy] = useState(false);
@@ -68,11 +74,16 @@ export function UserManager({
 
   const editingSelf = editingId === actorId;
 
+  function showDetail() {
+    detailRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
   function startAdd() {
     setEditingId(null);
     setDraft(EMPTY);
     setError(null);
     setNotice(null);
+    showDetail();
   }
 
   function startEdit(user: AdminUserView) {
@@ -80,6 +91,7 @@ export function UserManager({
     setDraft(draftFrom(user));
     setError(null);
     setNotice(null);
+    showDetail();
   }
 
   function toggleService(service: string) {
@@ -133,8 +145,33 @@ export function UserManager({
   }
 
   return (
-    <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1fr)_18rem]">
-      <form onSubmit={onSubmit} className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-ascend-navy/5">
+    <div className="mt-10 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_24rem]">
+      <section aria-labelledby="people-heading">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 id="people-heading" className="text-xl font-semibold text-ascend-navy">
+              People
+            </h2>
+            <p className="mt-1 text-sm text-ascend-taupe">
+              Sort any column, or search across every field. Choose a person to edit them.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={startAdd}
+            className="rounded-full bg-ascend-navy px-4 py-2.5 text-sm font-semibold text-white"
+          >
+            Add person
+          </button>
+        </div>
+        <UsersGrid users={users} selectedId={editingId} onSelect={startEdit} />
+      </section>
+
+      <form
+        ref={detailRef}
+        onSubmit={onSubmit}
+        className="rounded-3xl bg-white p-6 shadow-md ring-1 ring-ascend-navy/5 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto"
+      >
         <h2 className="text-xl font-semibold text-ascend-navy">
           {editingId ? "Edit person" : "Add a person"}
         </h2>
@@ -156,6 +193,17 @@ export function UserManager({
             value={draft.email}
             required
             onChange={(event) => setDraft({ ...draft, email: event.target.value })}
+          />
+        </label>
+        <label className="mt-4 block text-sm font-semibold text-ascend-navy">
+          Phone number
+          <input
+            type="tel"
+            autoComplete="tel"
+            className={FIELD}
+            value={draft.phone}
+            maxLength={20}
+            onChange={(event) => setDraft({ ...draft, phone: event.target.value })}
           />
         </label>
         <label className="mt-4 block text-sm font-semibold text-ascend-navy">
@@ -190,7 +238,7 @@ export function UserManager({
         </label>
         <fieldset className="mt-4">
           <legend className="text-sm font-semibold text-ascend-navy">Ways they can serve</legend>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <div className="mt-2 grid gap-2">
             {services.map((service) => (
               <label key={service} className="flex items-center gap-2 text-sm text-ascend-navy">
                 <input
@@ -258,28 +306,6 @@ export function UserManager({
           ) : null}
         </div>
       </form>
-
-      <div>
-        <h2 className="text-xl font-semibold text-ascend-navy">People</h2>
-        <ul className="mt-4 flex flex-col gap-3">
-          {users.map((user) => (
-            <li key={user.id}>
-              <button
-                type="button"
-                onClick={() => startEdit(user)}
-                className="w-full rounded-2xl bg-white px-4 py-3 text-left shadow-sm ring-1 ring-ascend-navy/5"
-              >
-                <span className="block font-semibold text-ascend-navy">{user.name}</span>
-                <span className="block text-sm text-ascend-taupe">{user.email}</span>
-                <span className="mt-1 block text-sm text-ascend-navy">
-                  {ROLE_LABELS[user.role]}
-                  {user.active ? "" : " · Deactivated"}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
     </div>
   );
 }

@@ -24,6 +24,7 @@ export async function submitServeApplication(
         name: input.name,
         services_provided: input.services,
         bio: input.bio || null,
+        phone: input.phone,
       },
     });
   } catch (err) {

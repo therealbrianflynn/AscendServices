@@ -14,6 +14,10 @@ const helper = createAdminColumnHelper<AdminUserView>();
 const columns = helper.columns([
   helper.accessor("name", { header: "Name" }),
   helper.accessor("email", { header: "Email" }),
+  helper.accessor((user) => (user.phone.length > 0 ? user.phone : "No phone on file"), {
+    id: "phone",
+    header: "Phone",
+  }),
   helper.accessor((user) => ROLE_LABELS[user.role], { id: "role", header: "Role" }),
   helper.accessor((user) => (user.active ? "Active" : "Deactivated"), {
     id: "active",
@@ -32,7 +36,15 @@ const columns = helper.columns([
   }),
 ]);
 
-export function UsersGrid({ users }: { users: AdminUserView[] }) {
+export function UsersGrid({
+  users,
+  selectedId = null,
+  onSelect,
+}: {
+  users: AdminUserView[];
+  selectedId?: string | null;
+  onSelect?: (user: AdminUserView) => void;
+}) {
   return (
     <DataGrid
       columns={columns}
@@ -40,6 +52,8 @@ export function UsersGrid({ users }: { users: AdminUserView[] }) {
       caption="Members who can sign in, newest first"
       searchLabel="Search members"
       emptyMessage="No members have signed in yet."
+      selectedId={selectedId}
+      onSelect={onSelect}
     />
   );
 }

@@ -15,6 +15,17 @@ describe("parseServeApplication", () => {
     if (!parsed.ok) return;
     expect(parsed.value.email).toBe("ada@example.com");
     expect(parsed.value.services).toEqual(["Meals"]);
+    expect(parsed.value.phone).toBeNull();
+  });
+
+  it("keeps a phone number on the application", () => {
+    const parsed = parseServeApplication(
+      { name: "Ada", email: "ada@example.com", services: ["Meals"], bio: "", phone: "317-555-0100" },
+      SERVICES,
+    );
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    expect(parsed.value.phone).toBe("317-555-0100");
   });
 
   it("uses the signed-in email instead of an address in the body", () => {

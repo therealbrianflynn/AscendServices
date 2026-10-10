@@ -88,7 +88,7 @@ export const VOLUNTEER_IMPORT_COLUMNS: readonly VolunteerImportColumn[] = [
     aliases: ["phone", "phone number", "mobile", "mobile phone"],
     required: false,
     description:
-      "Kept on the bio as a phone line so the ministry can still reach the person.",
+      "Saved on the account so the ministry can reach them. A blank cell leaves an existing number untouched.",
   },
 ];
 

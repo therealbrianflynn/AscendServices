@@ -113,6 +113,7 @@ describe("POST /api/board/requests/[id]/assign", () => {
         id: request.id,
         requester_name: "Ruth Boaz",
         requester_email: "ruth@example.com",
+        requester_phone: null,
         service_type: "Yard work",
         neighborhood: "Eastside",
         street_address: STREET,

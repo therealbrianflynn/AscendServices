@@ -23,12 +23,15 @@ export interface DataGridProps<TData extends AdminGridRow> {
   caption: string;
   searchLabel: string;
   emptyMessage: string;
+  /** When set, the grid is the master list: choosing a row opens that record. */
+  selectedId?: string | null;
+  onSelect?: (row: TData) => void;
 }
 
 /**
  * The one grid the admin console renders. Both the request pipeline and the
- * member directory are read-only lists that need the same two affordances, so
- * they differ only in their column definitions.
+ * member directory share sort and search. A screen that edits a record can
+ * also treat the grid as the master list and open the chosen row beside it.
  */
 export function DataGrid<TData extends AdminGridRow>({
   columns,
@@ -36,6 +39,8 @@ export function DataGrid<TData extends AdminGridRow>({
   caption,
   searchLabel,
   emptyMessage,
+  selectedId = null,
+  onSelect,
 }: DataGridProps<TData>) {
   const searchId = useId();
 
@@ -115,21 +120,47 @@ export function DataGrid<TData extends AdminGridRow>({
             ))}
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} className="border-t border-ascend-taupe/20">
-                {row.getAllCells().map((cell) => (
-                  <td key={cell.id} className={cellClass}>
-                    <table.FlexRender cell={cell} />
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const selected = selectedId === row.id;
+              return (
+                <tr
+                  key={row.id}
+                  className={
+                    selected
+                      ? "border-t border-ascend-taupe/20 bg-ascend-sun/70 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ascend-sky-deep"
+                      : onSelect
+                        ? "cursor-pointer border-t border-ascend-taupe/20 outline-none hover:bg-ascend-sky/10 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ascend-sky-deep"
+                        : "border-t border-ascend-taupe/20"
+                  }
+                  aria-selected={onSelect ? selected : undefined}
+                  tabIndex={onSelect ? 0 : undefined}
+                  onClick={onSelect ? () => onSelect(row.original) : undefined}
+                  onKeyDown={
+                    onSelect
+                      ? (event) => {
+                          if (event.key !== "Enter" && event.key !== " ") return;
+                          event.preventDefault();
+                          onSelect(row.original);
+                        }
+                      : undefined
+                  }
+                >
+                  {row.getAllCells().map((cell) => (
+                    <td key={cell.id} className={onSelect ? `${cellClass} cursor-pointer` : cellClass}>
+                      <table.FlexRender cell={cell} />
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
 
       {rows.length === 0 ? (
-        <p className="mt-3 text-sm text-ascend-taupe">{emptyMessage}</p>
+        <p className="mt-3 text-sm text-ascend-taupe">
+          {data.length > 0 && search.length > 0 ? "Nothing matches that search." : emptyMessage}
+        </p>
       ) : null}
     </div>
   );

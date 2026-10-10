@@ -124,6 +124,10 @@ function AssignmentCard({ assignment }: { assignment: AssignmentRequestView }) {
           label="Email"
           value={assignment.requester_email ?? "Not provided — please call the office."}
         />
+        <Detail
+          label="Phone"
+          value={assignment.requester_phone ?? "Not provided."}
+        />
       </dl>
     </li>
   );

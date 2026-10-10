@@ -62,7 +62,12 @@ export default async function ServePage({
             unsupportedMessage="This browser cannot create a passkey. Use a phone or computer that supports passkeys, then return here to offer your time."
           />
         ) : (
-          <ServeForm services={getServiceTypeOptions()} name={viewer.name} email={viewer.email} />
+          <ServeForm
+            services={getServiceTypeOptions()}
+            name={viewer.name}
+            email={viewer.email}
+            phone={viewer.phone ?? ""}
+          />
         )}
       </div>
     </main>

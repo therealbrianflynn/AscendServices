@@ -28,6 +28,7 @@ export const ASSIGNMENT_REQUEST_SELECT = {
   id: true,
   requester_name: true,
   requester_email: true,
+  requester_phone: true,
   service_type: true,
   neighborhood: true,
   street_address: true,
@@ -49,6 +50,7 @@ export const ADMIN_REQUEST_SELECT = {
   id: true,
   requester_name: true,
   requester_email: true,
+  requester_phone: true,
   service_type: true,
   neighborhood: true,
   street_address: true,
@@ -103,6 +105,7 @@ export interface AssignmentRequestView {
   id: string;
   requester_name: string;
   requester_email: string | null;
+  requester_phone: string | null;
   service_type: string;
   neighborhood: string;
   street_address: string;
@@ -123,6 +126,7 @@ export interface AdminRequestView {
   id: string;
   requester_name: string;
   requester_email: string | null;
+  requester_phone: string | null;
   service_type: string;
   neighborhood: string;
   street_address: string;
@@ -158,6 +162,7 @@ export interface PublicRequestRecord {
 export interface AssignmentRequestRecord extends PublicRequestRecord {
   requester_name: string;
   requester_email: string | null;
+  requester_phone?: string | null;
   street_address: string;
   assignedAt: Date | null;
 }
@@ -198,6 +203,7 @@ export function toAssignmentRequestView(
     ...toPublicRequestView(record),
     requester_name: record.requester_name,
     requester_email: record.requester_email,
+    requester_phone: record.requester_phone ?? null,
     street_address: record.street_address,
     assignedAt: record.assignedAt ? record.assignedAt.toISOString() : null,
   };

@@ -195,7 +195,8 @@ describe("volunteer import column contract", () => {
         email: "dj.beckwith14@gmail.com",
         name: "DJ Beckwith",
         services_provided: ["Counseling", "Auto Mechanic", "Handyman"],
-        bio: "Phone: 5174254706",
+        bio: null,
+        phone: "5174254706",
       },
     ]);
   });
@@ -406,6 +407,15 @@ describe("importVolunteers — new member (welcome)", () => {
       bio: "Drives a twelve-seat van.",
     });
     expect(outcome.report.summary).toMatchObject({ created: 1, merged: 0, failed: 0 });
+  });
+
+  it("stores a phone number on the account and leaves the bio alone", async () => {
+    await importCsv(`Email,Name,Phone,Skills\n${NEW_EMAIL},Ruth Naomi,3175550100,Meals\n`);
+
+    expect(member(NEW_EMAIL)).toMatchObject({
+      phone: "3175550100",
+      bio: null,
+    });
   });
 
   it("falls back to the address's local part when the sheet has no name", async () => {

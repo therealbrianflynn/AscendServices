@@ -8,12 +8,15 @@ export function ServeForm({
   services,
   name: initialName,
   email,
+  phone: initialPhone,
 }: {
   services: readonly string[];
   name: string;
   email: string;
+  phone: string;
 }) {
   const [name, setName] = useState(initialName);
+  const [phone, setPhone] = useState(initialPhone);
   const [bio, setBio] = useState("");
   const [chosen, setChosen] = useState<string[]>([]);
   const [busy, setBusy] = useState(false);
@@ -39,7 +42,7 @@ export function ServeForm({
       const response = await fetch("/api/serve", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ name, services: chosen, bio }),
+        body: JSON.stringify({ name, services: chosen, bio, phone }),
       });
       const body = (await response.json().catch(() => null)) as
         | { backgroundCheckUrl?: string; error?: string }
@@ -51,7 +54,7 @@ export function ServeForm({
             ? "Add a passkey before offering to serve."
             : body?.error === "unauthenticated"
               ? "Sign in with your passkey, then try again."
-              : "Please check your name and choose at least one way you can serve.",
+              : "Please check your name, phone number, and choose at least one way you can serve.",
         );
         return;
       }
@@ -102,6 +105,16 @@ export function ServeForm({
           required
           value={name}
           onChange={(event) => setName(event.target.value)}
+          className="rounded-2xl border border-ascend-navy/15 px-3 py-2 font-normal"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm font-semibold text-ascend-navy">
+        Phone number
+        <input
+          type="tel"
+          autoComplete="tel"
+          value={phone}
+          onChange={(event) => setPhone(event.target.value)}
           className="rounded-2xl border border-ascend-navy/15 px-3 py-2 font-normal"
         />
       </label>
