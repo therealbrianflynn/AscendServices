@@ -218,6 +218,8 @@ function containerEnvironment(database: DatabaseStack): Record<string, string> {
     NODE_ENV: "production",
     PORT: "3000",
     EMAIL_TRANSPORT: "log",
+    // EventBridge runs the monitor task. The web process must not run a second loop.
+    SLA_MONITOR_EMBEDDED: "false",
     EMAIL_FROM: "no-reply@ascend.local",
     AUTH_SESSION_TTL_HOURS: "24",
     MAGIC_LINK_TTL_MINUTES: "15",

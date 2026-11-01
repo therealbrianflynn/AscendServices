@@ -290,13 +290,17 @@ export function createFakePrisma(seed: FakeMemberRow[] = []): FakePrisma {
         orderBy,
         take,
       }: {
-        where?: { role?: string };
+        where?: { role?: string; deactivatedAt?: Date | null };
         select?: Selection;
         orderBy?: OrderBy;
         take?: number;
       }) {
         let rows = sortRows(
-          users.filter((row) => where?.role === undefined || row.role === where.role),
+          users.filter((row) => {
+            if (where?.role !== undefined && row.role !== where.role) return false;
+            if (where?.deactivatedAt === null && row.deactivatedAt != null) return false;
+            return true;
+          }),
           orderBy,
         );
         if (typeof take === "number") rows = rows.slice(0, take);

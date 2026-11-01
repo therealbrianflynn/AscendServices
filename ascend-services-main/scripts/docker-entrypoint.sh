@@ -16,4 +16,9 @@ until ./node_modules/.bin/prisma migrate deploy; do
   sleep 2
 done
 echo "[ascend] migrations applied"
+# The live site has no separate scheduler. Check overdue help requests in this
+# container unless a deploy already runs `scripts/run-sla.sh` on its own.
+if [ "${SLA_MONITOR_EMBEDDED:-true}" != "false" ]; then
+  sh ./scripts/run-sla-loop.sh &
+fi
 exec "$@"

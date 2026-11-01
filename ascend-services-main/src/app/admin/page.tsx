@@ -59,7 +59,8 @@ export default async function AdminConsolePage() {
           SLA thresholds
         </h2>
         <p className="mt-1 text-sm text-ascend-taupe">
-          Used by the SLA monitor to raise unassigned and stalled alerts.
+          Every active admin is emailed when a help request stays unassigned
+          longer than the alert below. The site checks about every 15 minutes.
         </p>
         <SlaSettingsForm settings={settings} />
       </section>
