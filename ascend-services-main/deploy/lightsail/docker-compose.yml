@@ -30,10 +30,17 @@ services:
       WEBAUTHN_ORIGINS: https://ascendservicesministry.org
       WEBAUTHN_RP_NAME: Ascend Services
       EMAIL_TRANSPORT: ses
-      EMAIL_FROM: no-reply@ascendservicesministry.org
+      # no-reply@ascendservicesministry.org cannot send until the domain's SES
+      # DKIM records exist. This verified address is the sender until then.
+      EMAIL_FROM: therealbrianflynn@gmail.com
+      # The host cron in /etc/cron.d/ascend-sla already runs the monitor.
+      SLA_MONITOR_EMBEDDED: "false"
       AWS_REGION: us-east-1
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:?set AWS_ACCESS_KEY_ID in .env}
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:?set AWS_SECRET_ACCESS_KEY in .env}
+      MEDIA_UPLOAD_DIR: /app/uploads
+    volumes:
+      - media_uploads:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -56,3 +63,4 @@ volumes:
   pgdata:
   caddy_data:
   caddy_config:
+  media_uploads:

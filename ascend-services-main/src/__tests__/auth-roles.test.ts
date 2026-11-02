@@ -10,20 +10,21 @@ const schema = readFileSync(
 );
 
 describe("app role enum", () => {
-  it("matches the Prisma Role enum exactly (SERVER | ADMIN)", () => {
+  it("matches the Prisma Role enum exactly (SERVER | ADMIN | REQUESTER)", () => {
     const body = schema.match(/enum Role \{([^}]*)\}/)?.[1];
     expect(body).toBeDefined();
     const schemaRoles = body!
       .split("\n")
       .map((line) => line.trim())
       .filter((line) => line.length > 0 && !line.startsWith("//"));
-    expect(schemaRoles).toEqual(["SERVER", "ADMIN"]);
+    expect(schemaRoles).toEqual(["SERVER", "ADMIN", "REQUESTER"]);
     expect([...APP_ROLES]).toEqual(schemaRoles);
   });
 
   it("accepts only known roles", () => {
     expect(isAppRole("SERVER")).toBe(true);
     expect(isAppRole("ADMIN")).toBe(true);
+    expect(isAppRole("REQUESTER")).toBe(true);
     expect(isAppRole("OWNER")).toBe(false);
     expect(isAppRole("server")).toBe(false);
     expect(isAppRole(undefined)).toBe(false);

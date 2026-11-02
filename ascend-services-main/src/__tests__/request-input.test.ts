@@ -37,6 +37,7 @@ describe("parseHelpRequestInput", () => {
     expect(parse(submission())).toEqual({
       requester_name: "Ruth Boaz",
       requester_email: null,
+      requester_phone: null,
       service_type: "Yard work",
       neighborhood: "Eastside",
       street_address: "412 Harvest Lane",
@@ -49,6 +50,15 @@ describe("parseHelpRequestInput", () => {
     expect(
       parse(submission({ requester_email: "  Ruth.Boaz@Example.COM " })),
     ).toMatchObject({ requester_email: "ruth.boaz@example.com" });
+  });
+
+  it("stores an optional phone and rejects one that is not a number", () => {
+    expect(parse(submission({ requester_phone: " (317) 555-0100 " }))).toMatchObject({
+      requester_phone: "(317) 555-0100",
+    });
+    expect(fieldErrors(submission({ requester_phone: "call me" }))).toEqual({
+      requester_phone: "invalid_phone",
+    });
   });
 
   it("rejects a malformed contact email rather than storing an undeliverable one", () => {

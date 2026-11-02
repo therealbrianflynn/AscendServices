@@ -3,12 +3,13 @@
  * (see `prisma/schema.prisma`) so route guards and the database agree on the
  * exact set of values; `src/__tests__/auth-roles.test.ts` asserts the parity.
  */
-export const APP_ROLES = ["SERVER", "ADMIN"] as const;
+export const APP_ROLES = ["SERVER", "ADMIN", "REQUESTER"] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
 
 export const SERVER_ROLE: AppRole = "SERVER";
 export const ADMIN_ROLE: AppRole = "ADMIN";
+export const REQUESTER_ROLE: AppRole = "REQUESTER";
 
 export function isAppRole(value: unknown): value is AppRole {
   return typeof value === "string" && (APP_ROLES as readonly string[]).includes(value);

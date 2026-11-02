@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 
+import { getAuthConfig } from "@/lib/auth/config";
 import { InvalidEmailError, requestMagicLink } from "@/lib/auth/magic-link";
+import { AFTER_LOGIN_COOKIE, safeNextPath } from "@/lib/auth/return-path";
 import { log } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +25,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_body" }, { status: 400 });
   }
 
-  const { email, name } = body as { email?: unknown; name?: unknown };
+  const { email, name, next } = body as { email?: unknown; name?: unknown; next?: unknown };
   if (typeof email !== "string") {
     return NextResponse.json({ error: "invalid_email" }, { status: 400 });
   }
@@ -45,5 +47,16 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "magic_link_failed" }, { status: 500 });
   }
 
-  return NextResponse.json({ status: "sent" }, { status: 202 });
+  const response = NextResponse.json({ status: "sent" }, { status: 202 });
+  const returnTo = safeNextPath(next);
+  if (returnTo) {
+    response.cookies.set(AFTER_LOGIN_COOKIE, returnTo, {
+      httpOnly: true,
+      sameSite: "lax",
+      path: "/",
+      secure: getAuthConfig().cookieSecure,
+      maxAge: 15 * 60,
+    });
+  }
+  return response;
 }

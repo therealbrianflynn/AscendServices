@@ -16,7 +16,7 @@ const fieldClass =
 
 type Busy = "passkey" | "magic-link" | null;
 
-export function SignInPanel() {
+export function SignInPanel({ returnTo = "/" }: { returnTo?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState<Busy>(null);
@@ -61,7 +61,7 @@ export function SignInPanel() {
         return;
       }
 
-      router.push("/");
+      router.push(returnTo);
       router.refresh();
     } catch {
       setError(describeApiError(null));
@@ -81,7 +81,7 @@ export function SignInPanel() {
       const response = await fetch("/api/auth/magic-link", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, next: returnTo === "/" ? undefined : returnTo }),
       });
       const body = await response.json().catch(() => null);
 

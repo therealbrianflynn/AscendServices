@@ -39,6 +39,7 @@ const volunteer: FakeMemberRow = {
   role: "SERVER",
   services_provided: ["Yard work"],
   bio: "Retired landscaper.",
+  validatedAt: new Date("2026-01-02T00:00:00.000Z"),
   createdAt: new Date("2026-01-01T00:00:00.000Z"),
 };
 
@@ -112,6 +113,7 @@ describe("POST /api/board/requests/[id]/assign", () => {
         id: request.id,
         requester_name: "Ruth Boaz",
         requester_email: "ruth@example.com",
+        requester_phone: null,
         service_type: "Yard work",
         neighborhood: "Eastside",
         street_address: STREET,
@@ -150,6 +152,19 @@ describe("POST /api/board/requests/[id]/assign", () => {
     expect(response.status).toBe(401);
     await expect(response.json()).resolves.toEqual({ error: "unauthenticated" });
     expect(db.requests[0].status).toBe("NEW");
+  });
+
+  it("refuses an unvalidated server before it claims a request", async () => {
+    const member = db.users[0];
+    if (!member) throw new Error("expected a signed-in server");
+    member.validatedAt = null;
+    const request = seedRequest();
+
+    const response = await assign(request.id);
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toEqual({ error: "forbidden" });
+    expect(db.requests[0]?.status).toBe("NEW");
   });
 
   it("rejects a signed cookie whose account no longer exists", async () => {

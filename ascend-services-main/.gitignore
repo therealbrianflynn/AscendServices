@@ -48,3 +48,6 @@ infra/dist/
 
 # lightsail runtime secrets
 deploy/lightsail/.env
+
+# uploaded media (kept on the server volume, never in git)
+/uploads

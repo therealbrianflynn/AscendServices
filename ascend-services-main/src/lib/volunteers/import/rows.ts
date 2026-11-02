@@ -1,4 +1,5 @@
 import { InvalidEmailError, normalizeEmail } from "@/lib/auth/email-address";
+import { parseOptionalPhone } from "@/lib/phone";
 
 import { fieldForHeader, type VolunteerImportField } from "./contract";
 import { isBlankRow, type VolunteerImportTable } from "./parse";
@@ -13,6 +14,7 @@ import { splitSkills } from "./skills";
 export type VolunteerImportRowErrorCode =
   | "missing_email"
   | "invalid_email"
+  | "invalid_phone"
   | "duplicate_email"
   | "write_failed";
 
@@ -31,6 +33,7 @@ export interface VolunteerImportRow {
   name: string | null;
   services_provided: string[];
   bio: string | null;
+  phone: string | null;
 }
 
 export interface VolunteerImportRows {
@@ -47,6 +50,8 @@ export function rowErrorMessage(
       return `Row ${context.row}: no email address, so there is no account to match.`;
     case "invalid_email":
       return `Row ${context.row}: "${context.value ?? ""}" is not a valid email address.`;
+    case "invalid_phone":
+      return `Row ${context.row}: "${context.value ?? ""}" is not a valid phone number.`;
     case "duplicate_email":
       return `Row ${context.row}: this address is already on row ${context.firstRow}; only the first row was applied.`;
     case "write_failed":
@@ -93,12 +98,19 @@ export function readVolunteerImportRows(table: VolunteerImportTable): VolunteerI
     }
     seen.set(email, line.row);
 
+    const phone = parseOptionalPhone(cell("phone"));
+    if (!phone.ok) {
+      errors.push(rowError("invalid_phone", { row: line.row, value: cell("phone") }));
+      continue;
+    }
+
     rows.push({
       row: line.row,
       email,
       name: optional(cell("name")),
       services_provided: splitSkills(cell("services_provided")),
       bio: optional(cell("bio")),
+      phone: phone.phone,
     });
   }
 

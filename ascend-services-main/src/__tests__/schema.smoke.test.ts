@@ -87,6 +87,7 @@ describe("Prisma schema Spec v6 smoke", () => {
 
   it("defines AuditLog and SystemSettings with Spec v6 SLA thresholds", () => {
     expect(schema).toMatch(/model AuditLog/);
+    expect(schema).toMatch(/model RequestQuestion/);
     expect(schema).toMatch(/actorId/);
     expect(schema).toMatch(/requestId/);
     expect(schema).toMatch(/fromStatus/);

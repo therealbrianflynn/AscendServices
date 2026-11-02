@@ -24,7 +24,8 @@ export default function RequestHelpPage() {
         }}
       >
         No account needed. Tell us what would make the week lighter, and we will
-        give you a private link so you can follow your request.
+        give you a private link so you can follow your request and ask an admin
+        a question.
       </PageIntro>
 
       <div className="max-w-2xl rounded-3xl bg-white p-6 shadow-md ring-1 ring-ascend-navy/5 sm:p-8">

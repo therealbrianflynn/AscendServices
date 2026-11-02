@@ -25,7 +25,7 @@ import { log } from "@/lib/logger";
 import { saveSlaSettings } from "@/lib/settings/sla-settings";
 import { defaultSlaSettings } from "@/lib/settings/sla-thresholds";
 import { SLA_CHECKS, cutoffFor, thresholdHours } from "@/lib/sla/checks";
-import { SLA_BREACH_ACTION, runSlaMonitor } from "@/lib/sla/monitor";
+import { SLA_BREACH_ACTION, alertKey, pendingAlertDeliveries, runSlaMonitor } from "@/lib/sla/monitor";
 import { SLA_ALERT_EMAIL_TEMPLATE, slaAlertSubject } from "@/lib/sla/notify";
 
 import {
@@ -381,6 +381,7 @@ describe("runSlaMonitor — privacy", () => {
       expect(line).not.toHaveProperty("street_address");
       expect(line).not.toHaveProperty("requester_name");
       expect(line).not.toHaveProperty("requester_email");
+      expect(line).not.toHaveProperty("requester_phone");
     }
   });
 
@@ -406,11 +407,66 @@ describe("runSlaMonitor — admin notification", () => {
         msg: "email_sent",
         template: SLA_ALERT_EMAIL_TEMPLATE,
         to: admin.email,
-        subject: slaAlertSubject(1),
+        subject: "A help request is still unassigned",
       }),
     );
     expect(loggedText()).toContain(overdue.id);
+    expect(loggedText()).toContain("has not been assigned");
     expect(loggedText()).not.toContain(STREET);
+  });
+
+  it("emails every active admin and skips a deactivated one", async () => {
+    seedOverdueNewRequest();
+    db.users.push({
+      id: "66666666-6666-4666-8666-666666666666",
+      name: "Second Admin",
+      email: "second@ascend.test",
+      role: "ADMIN",
+      services_provided: [],
+      bio: null,
+      createdAt: new Date("2026-03-01T00:00:00.000Z"),
+    });
+    db.users.push({
+      id: "77777777-7777-4777-8777-777777777777",
+      name: "Former Admin",
+      email: "former@ascend.test",
+      role: "ADMIN",
+      services_provided: [],
+      bio: null,
+      deactivatedAt: new Date("2026-03-02T00:00:00.000Z"),
+      createdAt: new Date("2026-01-15T00:00:00.000Z"),
+    });
+
+    await runSlaMonitor({ now: NOW });
+
+    const recipients = vi
+      .mocked(log)
+      .mock.calls.map(([fields]) => fields as { msg?: string; to?: string })
+      .filter((fields) => fields.msg === "email_sent")
+      .map((fields) => fields.to);
+    expect(recipients).toEqual([admin.email, "second@ascend.test"]);
+  });
+
+  it("retries the email when the first send fails", async () => {
+    seedOverdueNewRequest();
+
+    const failed = await runSlaMonitor({
+      now: NOW,
+      env: { ...process.env, EMAIL_TRANSPORT: "nope" },
+    });
+
+    expect(failed.notification).toBe("failed");
+    expect(failed.alerted).toHaveLength(0);
+    expect(db.auditLogs).toHaveLength(0);
+
+    const retried = await runSlaMonitor({
+      now: NOW,
+      env: { ...process.env, EMAIL_TRANSPORT: "log" },
+    });
+
+    expect(retried.notification).toBe("sent");
+    expect(retried.alerted).toHaveLength(1);
+    expect(db.auditLogs).toHaveLength(1);
   });
 
   it("stays quiet when nothing is overdue", async () => {
@@ -422,18 +478,54 @@ describe("runSlaMonitor — admin notification", () => {
     expect(loggedText()).not.toContain(SLA_ALERT_EMAIL_TEMPLATE);
   });
 
-  it("still audits and logs the breach when there is no admin to email", async () => {
+  it("leaves the breach unrecorded when there is no admin to email", async () => {
     db = createFakePrisma([volunteer]);
     prismaProxy.holder.current = db.client as Record<string, unknown>;
-    const overdue = seedOverdueNewRequest();
+    seedOverdueNewRequest();
 
     const report = await runSlaMonitor({ now: NOW });
 
     expect(report.notification).toBe("skipped_no_admins");
-    expect(report.alerted).toHaveLength(1);
-    expect(db.auditLogs).toEqual([
-      expect.objectContaining({ requestId: overdue.id, action: SLA_BREACH_ACTION }),
-    ]);
+    expect(report.alerted).toHaveLength(0);
+    expect(db.auditLogs).toEqual([]);
+  });
+});
+
+describe("pending alert deliveries", () => {
+  it("skips an admin who was already told and keeps one who was not", () => {
+    const breach = { requestId: "req-1", status: "NEW" } as never;
+
+    expect(
+      pendingAlertDeliveries(
+        [breach],
+        ["admin@ascend.test", "second@ascend.test"],
+        new Set([alertKey("req-1", "NEW", "admin@ascend.test")]),
+      ),
+    ).toEqual([{ email: "second@ascend.test", breaches: [breach] }]);
+  });
+
+  it("treats a legacy audit row as already sent to every admin", () => {
+    const breach = { requestId: "req-1", status: "NEW" } as never;
+
+    expect(
+      pendingAlertDeliveries(
+        [breach],
+        ["admin@ascend.test"],
+        new Set([alertKey("req-1", "NEW", "*")]),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("sla alert copy", () => {
+  it("names an unassigned help request in the subject", () => {
+    expect(slaAlertSubject([{ check: "unassigned" }])).toBe(
+      "A help request is still unassigned",
+    );
+    expect(slaAlertSubject([{ check: "unassigned" }, { check: "unassigned" }])).toBe(
+      "2 help requests are still unassigned",
+    );
+    expect(slaAlertSubject([{ check: "stalled_contact" }])).toBe("1 request is past its SLA");
   });
 });
 

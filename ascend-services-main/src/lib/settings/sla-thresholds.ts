@@ -40,7 +40,7 @@ export const SLA_THRESHOLDS: readonly SlaThreshold[] = [
     label: "Unassigned alert",
     unit: "hours",
     description:
-      "How long a new request may sit on the board with no volunteer before admins are alerted.",
+      "How long a new help request may wait with no volunteer before every active admin is emailed.",
     fallback: 24,
     min: 1,
     max: 720,

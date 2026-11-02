@@ -22,14 +22,35 @@ export async function readSession(): Promise<SessionPayload | null> {
   return verifySession(raw, getAuthConfig().sessionSecret);
 }
 
+function unauthenticated(): GuardResult {
+  return {
+    ok: false,
+    response: NextResponse.json({ error: "unauthenticated" }, { status: 401 }),
+  };
+}
+
+/**
+ * A signed cookie is not enough: the account must still exist and still be
+ * active. Deactivation takes effect on the next request, not when the cookie
+ * expires.
+ */
+async function accountIsActive(userId: string): Promise<boolean> {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { deactivatedAt: true },
+  });
+  return user != null && user.deactivatedAt == null;
+}
+
 export async function requireSession(): Promise<GuardResult> {
   const session = await readSession();
-  if (!session) {
-    return {
-      ok: false,
-      response: NextResponse.json({ error: "unauthenticated" }, { status: 401 }),
-    };
+  if (!session) return unauthenticated();
+
+  if (!(await accountIsActive(session.sub))) {
+    log({ level: "warn", msg: "session_inactive", actorId: session.sub });
+    return unauthenticated();
   }
+
   return { ok: true, session };
 }
 
@@ -41,10 +62,11 @@ export async function requireSession(): Promise<GuardResult> {
 export async function readRoleFromDatabase(userId: string): Promise<AppRole | null> {
   const user = await prisma.user.findUnique({
     where: { id: userId },
-    select: { role: true },
+    select: { role: true, deactivatedAt: true },
   });
 
-  return user ? parseAppRole(user.role) : null;
+  if (!user || user.deactivatedAt) return null;
+  return parseAppRole(user.role);
 }
 
 /** One log line for every denied role check, wherever the check happened. */

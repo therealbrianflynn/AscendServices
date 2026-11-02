@@ -29,8 +29,11 @@ export interface FakeMemberRow {
   role: string;
   services_provided: string[];
   bio: string | null;
+  phone?: string | null;
   /** Bearer credential: present on the row so tests can prove it is unselected. */
   onboarding_token?: string | null;
+  validatedAt?: Date | null;
+  deactivatedAt?: Date | null;
   createdAt: Date;
 }
 
@@ -41,6 +44,13 @@ export interface FakeSystemSettingsRow {
   stalled_progress_days: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface FakeRequestQuestionRow {
+  id: string;
+  requestId: string;
+  message: string;
+  createdAt: Date;
 }
 
 export interface FakeAuditLogRow {
@@ -93,6 +103,19 @@ interface AuditLogWhere {
   requestId?: StringFilter;
 }
 
+interface QuestionWhere {
+  requestId?: string;
+  createdAt?: DateFilter;
+}
+
+interface QuestionSelect {
+  id?: boolean;
+  message?: boolean;
+  createdAt?: boolean;
+  requestId?: boolean;
+  request?: { select: Selection };
+}
+
 /** Column the flows under test sort by, on either table. */
 type OrderBy = Partial<
   Record<"createdAt" | "assignedAt" | "updatedAt" | "name", "asc" | "desc">
@@ -101,6 +124,7 @@ type OrderBy = Partial<
 export interface FakePrisma {
   client: unknown;
   requests: FakeRequestRow[];
+  requestQuestions: FakeRequestQuestionRow[];
   users: FakeMemberRow[];
   auditLogs: FakeAuditLogRow[];
   systemSettings: FakeSystemSettingsRow[];
@@ -110,8 +134,10 @@ export interface FakePrisma {
   failNextAuditCreate(error: Error): void;
 }
 
-export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
+export function createFakePrisma(seed: FakeMemberRow[] = []): FakePrisma {
+  const users = seed.map((row) => ({ ...row }));
   const requests: FakeRequestRow[] = [];
+  const requestQuestions: FakeRequestQuestionRow[] = [];
   const auditLogs: FakeAuditLogRow[] = [];
   const systemSettings: FakeSystemSettingsRow[] = [];
   let forcedCollisions = 0;
@@ -219,6 +245,48 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
       },
     },
 
+    requestQuestion: {
+      async create({
+        data,
+        select,
+      }: {
+        data: { requestId: string; message: string };
+        select?: Selection;
+      }) {
+        const row: FakeRequestQuestionRow = {
+          id: nextId("question"),
+          requestId: data.requestId,
+          message: data.message,
+          createdAt: new Date(),
+        };
+        requestQuestions.push(row);
+        return project(row, select);
+      },
+
+      async count({ where }: { where?: QuestionWhere }) {
+        return requestQuestions.filter((row) => matchesQuestionWhere(row, where)).length;
+      },
+
+      async findMany({
+        where,
+        select,
+        orderBy,
+        take,
+      }: {
+        where?: QuestionWhere;
+        select?: QuestionSelect;
+        orderBy?: OrderBy;
+        take?: number;
+      }) {
+        let rows = sortRows(
+          requestQuestions.filter((row) => matchesQuestionWhere(row, where)),
+          orderBy,
+        );
+        if (typeof take === "number") rows = rows.slice(0, take);
+        return rows.map((row) => projectQuestion(row, select, requests));
+      },
+    },
+
     user: {
       async findUnique({
         where,
@@ -252,6 +320,7 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
           role: "SERVER",
           services_provided: [],
           bio: null,
+          phone: null,
           onboarding_token: null,
           createdAt: new Date(),
           ...data,
@@ -285,13 +354,17 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
         orderBy,
         take,
       }: {
-        where?: { role?: string };
+        where?: { role?: string; deactivatedAt?: Date | null };
         select?: Selection;
         orderBy?: OrderBy;
         take?: number;
       }) {
         let rows = sortRows(
-          users.filter((row) => where?.role === undefined || row.role === where.role),
+          users.filter((row) => {
+            if (where?.role !== undefined && row.role !== where.role) return false;
+            if (where?.deactivatedAt === null && row.deactivatedAt != null) return false;
+            return true;
+          }),
           orderBy,
         );
         if (typeof take === "number") rows = rows.slice(0, take);
@@ -382,6 +455,7 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
     /** Rolls the in-memory tables back on failure, like a real transaction. */
     async $transaction<T>(fn: (tx: unknown) => Promise<T>): Promise<T> {
       const requestsBefore = [...requests];
+      const questionsBefore = requestQuestions.map((row) => ({ ...row }));
       const auditLogsBefore = [...auditLogs];
       const settingsBefore = systemSettings.map((row) => ({ ...row }));
       const usersBefore = users.map((row) => ({ ...row }));
@@ -389,6 +463,7 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
         return await fn(client);
       } catch (err) {
         requests.splice(0, requests.length, ...requestsBefore);
+        requestQuestions.splice(0, requestQuestions.length, ...questionsBefore);
         auditLogs.splice(0, auditLogs.length, ...auditLogsBefore);
         systemSettings.splice(0, systemSettings.length, ...settingsBefore);
         users.splice(0, users.length, ...usersBefore);
@@ -400,6 +475,7 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
   return {
     client,
     requests,
+    requestQuestions,
     users,
     auditLogs,
     systemSettings,
@@ -410,6 +486,29 @@ export function createFakePrisma(users: FakeMemberRow[] = []): FakePrisma {
       auditCreateFailure = error;
     },
   };
+}
+
+function matchesQuestionWhere(row: FakeRequestQuestionRow, where?: QuestionWhere): boolean {
+  if (!where) return true;
+  if (where.requestId !== undefined && row.requestId !== where.requestId) return false;
+  return matchesDateFilter(row.createdAt, where.createdAt);
+}
+
+function projectQuestion(
+  row: FakeRequestQuestionRow,
+  select: QuestionSelect | undefined,
+  requests: FakeRequestRow[],
+): Partial<FakeRequestQuestionRow> & { request?: Partial<FakeRequestRow> | null } {
+  if (!select) return { ...row };
+  const { request: requestSelect, ...columns } = select;
+  const projected = project(row, columns as Selection) as Partial<FakeRequestQuestionRow> & {
+    request?: Partial<FakeRequestRow> | null;
+  };
+  if (requestSelect) {
+    const parent = requests.find((candidate) => candidate.id === row.requestId);
+    projected.request = parent ? project(parent, requestSelect.select) : null;
+  }
+  return projected;
 }
 
 function matchesRequestWhere(row: FakeRequestRow, where?: RequestWhere): boolean {

@@ -10,6 +10,7 @@ export const AUTH_USER_SELECT = {
   name: true,
   email: true,
   role: true,
+  deactivatedAt: true,
 } as const;
 
 export interface AuthUser {

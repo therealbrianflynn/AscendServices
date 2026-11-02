@@ -13,6 +13,10 @@ const DEFAULT_SERVICE_TYPES = [
   "Meals",
   "Errands or shopping",
   "Technology help",
+  "Counseling",
+  "Auto Mechanic",
+  "Handyman",
+  "Adopt a Military Family",
   "Other",
 ] as const;
 

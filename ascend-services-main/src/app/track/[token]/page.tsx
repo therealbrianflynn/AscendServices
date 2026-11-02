@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getAppBaseUrl } from "@/lib/app-url";
+import { listRequestQuestions } from "@/lib/requests/ask-admin";
 import { findRequestByTrackingToken } from "@/lib/requests/service";
 import {
   REQUEST_STATUSES,
@@ -11,6 +12,7 @@ import {
 import { buildTrackingUrl, isWellFormedTrackingToken } from "@/lib/requests/tracking-token";
 
 import { PageIntro } from "../../page-intro";
+import { AskAdminForm } from "../ask-admin-form";
 
 /** Bearer-token URL: keep it out of search indexes. */
 export const metadata: Metadata = {
@@ -36,6 +38,7 @@ export default async function TrackRequestPage({
   const request = await findRequestByTrackingToken(token);
   if (!request) notFound();
 
+  const questions = await listRequestQuestions(request.id);
   const currentStep = REQUEST_STATUSES.indexOf(request.status);
 
   return (
@@ -107,6 +110,30 @@ export default async function TrackRequestPage({
             />
           ) : null}
         </dl>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-ascend-taupe/30 p-5">
+        <h2 className="font-medium text-ascend-navy">Ask an admin</h2>
+        <p className="mt-1 text-sm text-ascend-ink">
+          Send a question about this request. Every active admin is emailed, and
+          your note stays on this page.
+        </p>
+        <AskAdminForm token={token} />
+        {questions.length > 0 ? (
+          <ul className="mt-6 flex flex-col gap-3">
+            {questions.map((question) => (
+              <li key={question.id} className="rounded-lg bg-ascend-bg px-3 py-2">
+                <p className="whitespace-pre-line text-sm text-ascend-ink">{question.message}</p>
+                <p className="mt-1 text-xs text-ascend-taupe">
+                  {new Date(question.createdAt).toLocaleString("en-US", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  })}
+                </p>
+              </li>
+            ))}
+          </ul>
+        ) : null}
       </section>
 
       <p className="mt-6 break-all text-xs text-ascend-taupe">

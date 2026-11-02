@@ -34,6 +34,7 @@ import {
   normalizeHeader,
 } from "@/lib/volunteers/import/contract";
 import { readVolunteerImportTable } from "@/lib/volunteers/import/parse";
+import { readVolunteerImportRows } from "@/lib/volunteers/import/rows";
 import {
   VOLUNTEER_IMPORTED_ACTION,
   VOLUNTEER_IMPORT_ACTION,
@@ -154,6 +155,11 @@ describe("volunteer import column contract", () => {
     expect(fieldForHeader("Full Name")).toBe("name");
     expect(fieldForHeader("services_provided")).toBe("services_provided");
     expect(fieldForHeader("Skills")).toBe("services_provided");
+    expect(fieldForHeader("First & Last Name")).toBe("name");
+    expect(fieldForHeader("Phone")).toBe("phone");
+    expect(
+      fieldForHeader("What area do you have experience or are wanting to provide?"),
+    ).toBe("services_provided");
     expect(fieldForHeader("Favourite colour")).toBeNull();
   });
 
@@ -164,6 +170,35 @@ describe("volunteer import column contract", () => {
       "Errands",
     ]);
     expect(splitSkills("   ")).toEqual([]);
+    expect(
+      splitSkills("Counseling Car Mechanic Adopt a Military Family Handyman"),
+    ).toEqual(["Counseling", "Auto Mechanic", "Adopt a Military Family", "Handyman"]);
+    expect(splitSkills("Car Mechanic")).toEqual(["Auto Mechanic"]);
+  });
+
+  it("reads a care-team export into a server profile", async () => {
+    const csv = [
+      "email,First & Last Name,Phone,Email,What area do you have experience or are wanting to provide?",
+      ",DJ Beckwith,5174254706,dj.beckwith14@gmail.com,Counseling Car Mechanic Handyman",
+    ].join("\n");
+
+    const table = await readVolunteerImportTable({
+      filename: "care-team.csv",
+      bytes: Buffer.from(csv),
+    });
+    expect(table.ok).toBe(true);
+    if (!table.ok) return;
+
+    expect(readVolunteerImportRows(table.table).rows).toEqual([
+      {
+        row: 2,
+        email: "dj.beckwith14@gmail.com",
+        name: "DJ Beckwith",
+        services_provided: ["Counseling", "Auto Mechanic", "Handyman"],
+        bio: null,
+        phone: "5174254706",
+      },
+    ]);
   });
 
   it("merges skills as a union that keeps the profile's existing spelling", () => {
@@ -372,6 +407,15 @@ describe("importVolunteers — new member (welcome)", () => {
       bio: "Drives a twelve-seat van.",
     });
     expect(outcome.report.summary).toMatchObject({ created: 1, merged: 0, failed: 0 });
+  });
+
+  it("stores a phone number on the account and leaves the bio alone", async () => {
+    await importCsv(`Email,Name,Phone,Skills\n${NEW_EMAIL},Ruth Naomi,3175550100,Meals\n`);
+
+    expect(member(NEW_EMAIL)).toMatchObject({
+      phone: "3175550100",
+      bio: null,
+    });
   });
 
   it("falls back to the address's local part when the sheet has no name", async () => {

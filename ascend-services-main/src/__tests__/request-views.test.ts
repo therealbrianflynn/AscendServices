@@ -49,6 +49,7 @@ describe("public request view", () => {
     expect(PUBLIC_REQUEST_SELECT).not.toHaveProperty("requester_name");
     expect(PUBLIC_REQUEST_SELECT).not.toHaveProperty("prayer_request");
     expect(PUBLIC_REQUEST_SELECT).not.toHaveProperty("tracking_token");
+    expect(PUBLIC_REQUEST_SELECT).not.toHaveProperty("requester_phone");
   });
 
   it("rejects a status the application does not know", () => {
@@ -64,6 +65,7 @@ describe("assignment request view", () => {
       id: "req-1",
       requester_name: "Ruth Boaz",
       requester_email: "ruth@example.com",
+      requester_phone: null,
       service_type: "Yard work",
       neighborhood: "Eastside",
       street_address: STREET,

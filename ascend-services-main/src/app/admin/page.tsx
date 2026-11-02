@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { listAdminRequests } from "@/lib/admin/requests";
 import { listAdminUsers } from "@/lib/admin/users";
 import { requireRoleForPage } from "@/lib/auth/page-guard";
 import { ADMIN_ROLE } from "@/lib/auth/roles";
+import { listAdminQuestions } from "@/lib/requests/ask-admin";
 import { readSlaSettings } from "@/lib/settings/sla-settings";
 
+import { AdminQuestions } from "./admin-questions";
 import { PageIntro } from "../page-intro";
 import { RequestsGrid } from "./requests-grid";
+import { ServerRoster } from "./server-roster";
 import { SlaSettingsForm } from "./sla-settings-form";
 import { UsersGrid } from "./users-grid";
 import { VolunteerImportPanel } from "./volunteer-import-panel";
@@ -31,10 +35,11 @@ export const dynamic = "force-dynamic";
 export default async function AdminConsolePage() {
   await requireRoleForPage(ADMIN_ROLE);
 
-  const [requests, users, settings] = await Promise.all([
+  const [requests, users, settings, questions] = await Promise.all([
     listAdminRequests(),
     listAdminUsers(),
     readSlaSettings(),
+    listAdminQuestions(),
   ]);
 
   return (
@@ -57,9 +62,24 @@ export default async function AdminConsolePage() {
           SLA thresholds
         </h2>
         <p className="mt-1 text-sm text-ascend-taupe">
-          Used by the SLA monitor to raise unassigned and stalled alerts.
+          Every active admin is emailed when a help request stays unassigned
+          longer than the alert below. The site checks about every 15 minutes.
         </p>
         <SlaSettingsForm settings={settings} />
+      </section>
+
+      <section className="mt-12" aria-labelledby="admin-questions-heading">
+        <h2
+          id="admin-questions-heading"
+          className="text-xl font-semibold text-ascend-navy"
+        >
+          Questions from requesters
+        </h2>
+        <p className="mt-1 text-sm text-ascend-taupe">
+          Notes sent from a private tracking page. Contact details stay on the
+          request row below.
+        </p>
+        <AdminQuestions questions={questions} />
       </section>
 
       <section className="mt-12" aria-labelledby="admin-requests-heading">
@@ -80,8 +100,15 @@ export default async function AdminConsolePage() {
           Members
         </h2>
         <p className="mt-1 text-sm text-ascend-taupe">
-          Volunteers self-register as SERVER; ADMIN is granted by the seed script.
+          Add people, edit their details, set Admin, Server, or Requester, and
+          deactivate accounts from user management.
         </p>
+        <Link
+          href="/admin/users"
+          className="mt-4 inline-flex rounded-full bg-ascend-navy px-4 py-2.5 text-sm font-semibold text-white"
+        >
+          Manage users
+        </Link>
 
         <h3
           id="admin-import-heading"
@@ -96,6 +123,13 @@ export default async function AdminConsolePage() {
         <VolunteerImportPanel />
 
         <UsersGrid users={users} />
+
+        <h3 className="mt-8 text-base font-semibold text-ascend-navy">Server validation</h3>
+        <p className="mt-1 text-sm text-ascend-taupe">
+          A server can open the Help Wanted board only after you mark them validated.
+          Admins always have access.
+        </p>
+        <ServerRoster users={users} />
       </section>
     </main>
   );

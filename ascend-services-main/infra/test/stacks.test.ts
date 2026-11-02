@@ -100,6 +100,9 @@ describe("Ascend stacks", () => {
       expect(environmentNames).not.toContain("DB_PASSWORD");
       expect(environmentNames).not.toContain("DATABASE_URL");
       expect(environmentNames).toContain("DB_HOST");
+      expect(container.Environment).toEqual(
+        expect.arrayContaining([{ Name: "SLA_MONITOR_EMBEDDED", Value: "false" }]),
+      );
 
       const secretNames = (container.Secrets ?? []).map((entry) => entry.Name);
       expect(secretNames).toEqual(expect.arrayContaining(["DB_USER", "DB_PASSWORD", "AUTH_SESSION_SECRET"]));

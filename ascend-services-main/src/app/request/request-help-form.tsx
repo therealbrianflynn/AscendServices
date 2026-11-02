@@ -15,6 +15,7 @@ const FIELD_ERROR_MESSAGES: Record<string, string> = {
   too_long: "That is longer than we can store — please shorten it.",
   unsupported: "Please choose one of the listed options.",
   invalid: "That does not look like an email address.",
+  invalid_phone: "That does not look like a phone number.",
 };
 
 const FALLBACK_ERROR = "Something went wrong on our side. Please try again.";
@@ -45,6 +46,7 @@ export function RequestHelpForm({ serviceTypes }: RequestHelpFormProps) {
     const payload = {
       requester_name: form.get("requester_name"),
       requester_email: form.get("requester_email"),
+      requester_phone: form.get("requester_phone"),
       service_type: form.get("service_type"),
       neighborhood: form.get("neighborhood"),
       street_address: form.get("street_address"),
@@ -104,6 +106,22 @@ export function RequestHelpForm({ serviceTypes }: RequestHelpFormProps) {
           type="email"
           autoComplete="email"
           maxLength={REQUEST_FIELD_MAX_LENGTHS.requester_email}
+          className={fieldClass}
+        />
+      </Field>
+
+      <Field
+        name="requester_phone"
+        label="Phone number (optional)"
+        hint="Kept private. Shared with the volunteer assigned to you so they can reach you."
+        error={fieldErrors.requester_phone}
+      >
+        <input
+          id="requester_phone"
+          name="requester_phone"
+          type="tel"
+          autoComplete="tel"
+          maxLength={REQUEST_FIELD_MAX_LENGTHS.requester_phone}
           className={fieldClass}
         />
       </Field>

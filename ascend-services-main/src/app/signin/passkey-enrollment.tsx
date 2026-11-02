@@ -16,9 +16,10 @@ const fieldClass =
 
 export interface PasskeyEnrollmentProps {
   passkeys: PasskeySummary[];
+  unsupportedMessage?: string;
 }
 
-export function PasskeyEnrollment({ passkeys }: PasskeyEnrollmentProps) {
+export function PasskeyEnrollment({ passkeys, unsupportedMessage }: PasskeyEnrollmentProps) {
   const router = useRouter();
   const [label, setLabel] = useState("");
   const [busy, setBusy] = useState(false);
@@ -100,7 +101,8 @@ export function PasskeyEnrollment({ passkeys }: PasskeyEnrollmentProps) {
         </button>
       ) : (
         <p className="rounded-xl bg-ascend-bg px-3 py-2 text-sm text-ascend-navy/80">
-          This browser does not support passkeys. Email links will keep working.
+          {unsupportedMessage ??
+            "This browser does not support passkeys. Email links will keep working."}
         </p>
       )}
 

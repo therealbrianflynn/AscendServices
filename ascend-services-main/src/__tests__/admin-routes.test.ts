@@ -145,6 +145,7 @@ describe("GET /api/admin/requests", () => {
           id: "req-1",
           requester_name: "Ruth Boaz",
           requester_email: REQUESTER_EMAIL,
+          requester_phone: null,
           service_type: "Yard work",
           neighborhood: "Eastside",
           street_address: STREET,

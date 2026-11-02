@@ -102,7 +102,9 @@ export async function finishPasskeyAuthentication({
       })
     : null;
 
-  if (!stored) return reject("unknown_credential");
+  if (!stored || stored.user.deactivatedAt) {
+    return reject("unknown_credential", stored?.userId);
+  }
 
   // When the member named themselves up front, the assertion has to come from
   // one of *their* credentials.
