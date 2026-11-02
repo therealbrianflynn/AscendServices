@@ -158,8 +158,9 @@ model Request {
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
-  assignedTo      User?         @relation("RequestAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedTo      User?             @relation("RequestAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
   auditLogs       AuditLog[]
+  questions       RequestQuestion[]
 
   @@index([status])
   @@index([assignedToId])
@@ -185,6 +186,19 @@ model AuditLog {
   @@index([requestId])
   @@index([actorId])
   @@index([createdAt])
+}
+
+/// A question the tracking-link holder sent to the ministry admins.
+/// The tracking token is the credential; it is never stored on this row.
+model RequestQuestion {
+  id        String   @id @default(uuid())
+  requestId String
+  message   String
+  createdAt DateTime @default(now())
+
+  request   Request  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, createdAt])
 }
 
 /// Singleton-style settings row holding the Spec v6 SLA monitoring thresholds.
